@@ -238,16 +238,16 @@ export default function InvitationDesigner() {
         setLayers(prev => prev.map(l => (l.id === selected.id ? { ...l, ...patch } : l)));
     }
 
-    // Export PNG using html-to-image
-    // async function exportPNG() {
-    //     const { toPng } = await import("html-to-image");
-    //     const node = nodeRef.current;
-    //     const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: 2 });
-    //     const link = document.createElement("a");
-    //     link.download = "invitation.png";
-    //     link.href = dataUrl;
-    //     link.click();
-    // }
+    //Export PNG using html-to-image
+    async function exportPNG() {
+        const { toPng } = await import("html-to-image");
+        const node = nodeRef.current;
+        const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: 2 });
+        const link = document.createElement("a");
+        link.download = "invitation.png";
+        link.href = dataUrl;
+        link.click();
+    }
 
     function resetAll() {
         setLayers(defaultLayers);
@@ -278,7 +278,7 @@ export default function InvitationDesigner() {
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={resetAll} className="rounded-xl bg-white px-3 py-2 text-sm shadow hover:shadow-md">Reset</button>
-                        {/*<button onClick={exportPNG} className="flex items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-sm text-white shadow hover:shadow-lg"><Download className="h-4 w-4"/> Export PNG</button>*/}
+                        <button onClick={exportPNG} className="flex items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-sm text-white shadow hover:shadow-lg"><Download className="h-4 w-4"/> Export PNG</button>
                     </div>
                 </header>
 
