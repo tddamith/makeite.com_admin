@@ -8,7 +8,7 @@ const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
       key: "subCategory",
       label: "Sub Category",
       size: "lg",
-      placeholder: "Select sub category",
+      placeholder: "ex : makeite@example.com",
       mainLayerStyles: " flex-col align-content-center mb-3",
       iconName: "",
       isRequired: false,

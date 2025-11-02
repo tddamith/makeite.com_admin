@@ -8,7 +8,7 @@ const CategorySelectBox = ({ data, onChangeCategory }) => {
       key: "category",
       label: "Category",
       size: "lg",
-      placeholder: "Select category",
+      placeholder: "Ex : Wedding",
       mainLayerStyles: " flex-col align-content-center mb-3",
       iconName: "",
       isRequired: false,

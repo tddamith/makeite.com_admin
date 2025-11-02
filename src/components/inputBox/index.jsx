@@ -13,7 +13,7 @@ const InputBox = ({ onChange, data }) => {
     <>
       <form autoComplete="off">
         <input
-          className={` w-full p-1 rounded-x_sm border-x_sm border-boder-secondary bg-white ${
+          className={` w-full p-1 rounded-x_sm border-x_sm border-boder-secondary bg-white text-md text-disable font-manrope ${
             data?.size
           } 
             ${

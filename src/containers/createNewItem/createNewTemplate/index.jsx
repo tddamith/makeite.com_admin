@@ -17,7 +17,7 @@ const CreateNewTemplate = () => {
       isShowRequired: false,
       elementConfig: {
         type: "text",
-        placeholder: "",
+        placeholder: "Ex : Hot Wedding",
       },
       touched: false,
       validation: {
@@ -31,7 +31,7 @@ const CreateNewTemplate = () => {
       key: "category",
       label: "Category",
       size: "lg",
-      placeholder: "-",
+      placeholder: "Ex : Wedding",
       mainLayerStyles: " flex-column " + " align-content-center " + "mb-3",
       iconName: "",
       isRequired: false,
@@ -51,7 +51,7 @@ const CreateNewTemplate = () => {
       key: "subCategory",
       label: "Sub Category",
       size: "lg",
-      placeholder: "-",
+      placeholder: "ex : makeite@example.com",
       mainLayerStyles: " flex-column " + " align-content-center " + "mb-3",
       iconName: "",
       isRequired: false,
