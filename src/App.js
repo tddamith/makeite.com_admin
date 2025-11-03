@@ -1,14 +1,16 @@
-import Editor from "./Editor";
-import Editor2 from "./Editor_2";
-import Editor3 from "./Editor_3";
+import { BrowserRouter as Router } from "react-router-dom/cjs/react-router-dom.min";
+import "./App.css";
+
+import AppRouter from "./routes/AppRouter";
+const createHistory = require("history");
 
 function App() {
   return (
-      <div style={{ padding: "2rem" }}>
-        <h1>🎨 Invitation Editor</h1>
-        {/*<Editor />*/}
-        <Editor3 />
-      </div>
+    <>
+      <Router history={createHistory}>
+        <AppRouter />
+      </Router>
+    </>
   );
 }
 
