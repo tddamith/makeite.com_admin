@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import DropBox from "../dropBox";
+import { getAllSubCategoryByCategoryId } from "../../containers/createNewItem/createNewTemplate/service/category.service";
 
 const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
   const [formData, setFormData] = useState({
@@ -26,39 +27,39 @@ const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
     },
   });
 
-  //    const fetchCategories = async () => {
-  //      const updateForm = { ...formData };
-  //      updateForm.category.loading = true;
-  //      updateForm["category"].elementConfig.options = [];
-  //      const response = await getAllCategory();
-  //      if (response?.data) {
-  //        let categoryList = await syncCategory(response.data);
-  //        updateForm["category"].elementConfig.options = categoryList;
-  //        updateForm.category.loading = false;
-  //        dispatch(setCategoryList(response.data));
+  const fetchCategories = async (category_id) => {
+    const updateForm = { ...formData };
+    updateForm.subCategory.loading = true;
+    updateForm["subCategory"].elementConfig.options = [];
+    const response = await getAllSubCategoryByCategoryId(category_id);
+    if (response?.data?.sub_categories) {
+      let categoryList = await syncCategory(response?.data?.sub_categories);
+      updateForm["subCategory"].elementConfig.options = categoryList;
+      updateForm.subCategory.loading = false;
+      // dispatch(setCategoryList(response.data));
 
-  //        setFormData(updateForm);
-  //      }
-  //    };
+      setFormData(updateForm);
+    }
+  };
 
   const syncCategory = async (res) => {
     let categoryList = [];
-    for (let category of res) {
+    for (let subCategory of res) {
       categoryList.push({
-        id: category.category_id,
-        key: category.name,
-        value: category.category_id,
-        displayValue: category.name,
+        id: subCategory.sub_category_id,
+        key: subCategory.sub_category_name,
+        value: subCategory.sub_category_id,
+        displayValue: subCategory.sub_category_name,
       });
     }
     return categoryList;
   };
 
-  // useEffect(() => {
-  //   if (formData.category.elementConfig.options.length === 0) {
-  //     fetchCategories();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (data.category_id) {
+      fetchCategories(data.category_id);
+    }
+  }, [data.category_id]);
 
   const updateform = { ...formData };
 

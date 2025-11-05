@@ -13,12 +13,12 @@ const InputBox = ({ onChange, data }) => {
     <>
       <form autoComplete="off">
         <input
-          className={` w-full p-1 rounded-x_sm border-x_sm border-boder-secondary bg-white text-md text-disable font-manrope ${
+          className={` w-full p-1 rounded-x_sm border-x_sm border-border-secondary bg-white text-md text-black font-manrope ${
             data?.size
           } 
             ${
               data?.validation?.required && data?.touched && !data.value
-                ? "validation-on"
+                ? "border-red-600 border-2 "
                 : ""
             } `}
           disabled={data?.disabled}
@@ -40,6 +40,31 @@ const InputBox = ({ onChange, data }) => {
         </div>
       )}
       <div className="w-full">{inputElement}</div>
+      {/*---- error goes here -----*/}
+      {data && data.validation && data.validation.required && data.touched && (
+        <>
+          {/*---- filed is required -----*/}
+          {data.validation.required && !data.value && (
+            <div className="font-manrope text-sm text-red-600 mt-1 animate__animated animate__fadeIn">
+              You can't keep this as empty
+            </div>
+          )}
+
+          {/*----  invalid data-----*/}
+          {data.value && data.invalidReason && (
+            <div className="font-manrope text-sm text-red-600 mt-1 animate__animated animate__fadeIn">
+              {data.invalidReason}
+            </div>
+          )}
+
+          {/*----  invalid data-----*/}
+          {data.touched && !data.isValid && (
+            <div className="font-manrope text-sm text-red-600 mt-1">
+              {data.invalidReason}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

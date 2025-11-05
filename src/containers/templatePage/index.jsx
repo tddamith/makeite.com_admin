@@ -14,7 +14,7 @@ const Template = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="p-6 border-b border-boder-secondary flex flex-row align-center justify-between">
+      <div className="p-6 border-b border-border-primary flex flex-row align-center justify-between">
         <FormHeader title="Templates" />
 
         <div className="flex justify-center w-full">

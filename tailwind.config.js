@@ -19,6 +19,7 @@ module.exports = {
         hover: " #DAF4C1",
         disable_2: " #EDEDED",
         disable_3: " #CCCCCE",
+        bg_1: "#110209",
 
         font: {
           primary: "#161625",
@@ -26,7 +27,7 @@ module.exports = {
           default: " #0A071B",
         },
 
-        boder: {
+        border: {
           primary: "#F8F9FB",
           secondary: " #D8D8DA",
           deafult: " #E8EAF0",

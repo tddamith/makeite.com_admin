@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import DropBox from "../dropBox";
+import { getAllCategory } from "../../containers/createNewItem/createNewTemplate/service/category.service";
 
 const CategorySelectBox = ({ data, onChangeCategory }) => {
+  const [categoryList, setCategoryList] = useState("");
+
   const [formData, setFormData] = useState({
     category: {
       key: "category",
@@ -26,39 +29,40 @@ const CategorySelectBox = ({ data, onChangeCategory }) => {
     },
   });
 
-  //    const fetchCategories = async () => {
-  //      const updateForm = { ...formData };
-  //      updateForm.category.loading = true;
-  //      updateForm["category"].elementConfig.options = [];
-  //      const response = await getAllCategory();
-  //      if (response?.data) {
-  //        let categoryList = await syncCategory(response.data);
-  //        updateForm["category"].elementConfig.options = categoryList;
-  //        updateForm.category.loading = false;
-  //        dispatch(setCategoryList(response.data));
+  const fetchCategories = async () => {
+    const updateForm = { ...formData };
+    updateForm.category.loading = true;
+    updateForm["category"].elementConfig.options = [];
+    const response = await getAllCategory();
+    if (response?.data?.categories.length > 0) {
+      let categoryList = await syncCategory(response.data?.categories);
+      updateForm["category"].elementConfig.options = categoryList;
+      updateForm.category.loading = false;
+      //  dispatch(setCategoryList(response.data));
 
-  //        setFormData(updateForm);
-  //      }
-  //    };
+      setFormData(updateForm);
+    }
+    console.log("Category List:", categoryList);
+  };
 
   const syncCategory = async (res) => {
     let categoryList = [];
     for (let category of res) {
       categoryList.push({
         id: category.category_id,
-        key: category.name,
+        key: category.category_name,
         value: category.category_id,
-        displayValue: category.name,
+        displayValue: category.category_name,
       });
     }
     return categoryList;
   };
 
-  // useEffect(() => {
-  //   if (formData.category.elementConfig.options.length === 0) {
-  //     fetchCategories();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (formData.category.elementConfig.options.length === 0) {
+      fetchCategories();
+    }
+  }, [formData]);
 
   const updateform = { ...formData };
 

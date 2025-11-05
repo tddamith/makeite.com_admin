@@ -9,10 +9,11 @@ import { withRouter } from "react-router-dom/cjs/react-router-dom";
 
 const Index = (props) => {
   const [menuName, setMenuName] = useState("");
+  const { location } = props;
 
   return (
     <>
-      <div className="flex flex-col w-[250px] h-full border-boder-primary border-r-x_sm px-[24px] py-8 fixed justify-between">
+      <div className="flex flex-col w-[250px] h-full border-border-primary border-r-x_sm px-[24px] py-8 fixed justify-between">
         <div>
           <Logo />
           <div className="flex flex-col gap-4 mt-8 ml-[-10px]">
@@ -30,6 +31,7 @@ const Index = (props) => {
             <MenuButtonCard
               icon={AddIcon("layout")}
               content={"Template"}
+              isActive={location.pathname === "/templates"}
               onClick={() => {
                 props.history.push("/templates");
                 setMenuName("Template");
