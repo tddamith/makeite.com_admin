@@ -85,7 +85,7 @@ const Uploader = ({ data, onChange }) => {
               }
             }, 1000);
 
-            alert("Success");
+            console.log("Success");
             // notification.success({
             //   message: "success",
             //   description: "ZIP file uploaded and template create successfully",
@@ -116,8 +116,6 @@ const Uploader = ({ data, onChange }) => {
           //   description: error,
           // });
           console.log(error);
-        } finally {
-          setIsLoading(false);
         }
       };
 
@@ -163,20 +161,18 @@ const Uploader = ({ data, onChange }) => {
 
         {isLoading && (
           <>
-            {progress > 0 && (
-              <div
-                className="flex flex-col justify-center align-center mt-3"
-                style={{ width: "320px" }}
-              >
-                <Progress
-                  percent={progress}
-                  showInfo={false}
-                  strokeColor="#BE17FA"
-                  trailColor="#d66dfc"
-                />
-                <span className="mt-2">{progress}%</span>
-              </div>
-            )}
+            <div
+              className="flex flex-col justify-center items-center mt-3"
+              style={{ width: "auto" }}
+            >
+              <Progress
+                percent={progress}
+                showInfo={false}
+                strokeColor="#BE17FA"
+                trailColor="#e7a9fd"
+              />
+              <span className="mt-2">{progress}%</span>
+            </div>
           </>
         )}
       </div>
