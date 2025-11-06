@@ -277,7 +277,7 @@ const CreateNewTemplate = () => {
               ? "text-white bg-black"
               : "bg-border-default text-disable"
           }
-          isActive={template.template_id}
+          isActive={template?.template_id}
           isLoading={isLoading}
           onClick={async (e) => {
             e.preventDefault();
