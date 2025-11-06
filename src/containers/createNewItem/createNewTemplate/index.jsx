@@ -272,11 +272,12 @@ const CreateNewTemplate = () => {
 
         <Button
           content="Done"
-          type={
-            image?.file_url === ""
-              ? "bg-border-deafult text-disable"
-              : "text-white bg-bg_1 "
+          className={
+            template.template_id
+              ? "text-white bg-black"
+              : "bg-border-default text-disable"
           }
+          isActive={template.template_id}
           isLoading={isLoading}
           onClick={async (e) => {
             e.preventDefault();
