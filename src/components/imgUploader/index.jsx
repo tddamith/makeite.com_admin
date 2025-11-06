@@ -67,31 +67,31 @@ const ImgUploader = ({ data, onChange }) => {
           console.log("Image Upload Response:", response);
           if (response?.data) {
             onChange(response?.data);
-            // Store.addNotification({
-            //   title: "Success",
-            //   message: "Image Upload successfully",
-            //   type: "success",
-            //   container: "top-right",
-            //   dismiss: {
-            //     duration: 2000,
-            //     onScreen: true,
-            //   },
-            // });
-            notification.success({
-              message: "success",
-              description: "Image uploaded  successfully",
+            Store.addNotification({
+              title: "Success",
+              message: "Image Upload successfully",
+              type: "success",
+              container: "top-right",
+              dismiss: {
+                duration: 2000,
+                onScreen: true,
+              },
             });
-          } else {
-            // Store.addNotification({
-            //   title: "Error",
-            //   message: "Image Upload failed",
-            //   type: "danger",
-            //   container: "top-right",
-            //   dismiss: {
-            //     duration: 2000,
-            //     onScreen: true,
-            //   },
+            // notification.success({
+            //   message: "success",
+            //   description: "Image uploaded  successfully",
             // });
+          } else {
+            Store.addNotification({
+              title: "Error",
+              message: "Image Upload failed",
+              type: "danger",
+              container: "top-right",
+              dismiss: {
+                duration: 2000,
+                onScreen: true,
+              },
+            });
             notification.success({
               message: "success",
               description: "Image Upload failed",
