@@ -4,20 +4,24 @@ import CategorySelectBox from "../../../components/categorySelectBox";
 import SubCategorySelectBox from "../../../components/subCategorySelectBox";
 import Uploader from "../../../components/uploader";
 import TemplateTypeSwitch from "../../../components/switchButton";
-import { Menu } from "antd";
+import { Menu, notification } from "antd";
 import MenuButtonCard from "../../../components/menuButton";
 import Button from "../../../components/button";
 import { CheckValidity } from "../../../utils/formValidity";
-import { createNewTemplate } from "./service/template.service";
-import { Store } from "react-notifications-component";
+import {
+  createNewTemplate,
+  updateTemplateById,
+} from "./service/template.service";
+
 import ImgUploader from "../../../components/imgUploader";
+import { Store } from "react-notifications-component";
 
 const CreateNewTemplate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isPaid, setIsPaid] = useState(false);
   const [image, setImage] = useState("");
-  const [zip, setZip] = useState("");
+  const [template, setTemplate] = useState("");
   const [formData, setFormData] = useState({
     templateName: {
       key: "templateName",
@@ -110,12 +114,7 @@ const CreateNewTemplate = () => {
   const onChangeZip = (zip) => {
     try {
       if (zip) {
-        let file = {
-          url: zip.file_url,
-          file_name: zip.file_name,
-        };
-
-        setZip(file);
+        setTemplate(zip);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -161,6 +160,10 @@ const CreateNewTemplate = () => {
       updateForm[key].touched = false;
     }
     // categorySelect([]);
+    setImage("");
+    setTemplate("");
+    setIsPaid(false);
+
     setFormData(updateForm);
   };
 
@@ -173,13 +176,13 @@ const CreateNewTemplate = () => {
     };
 
     try {
-      const response = await createNewTemplate({
-        template_name: updateForm.templateName.value,
-        category: updateForm.category.value,
-        subCategory: updateForm.subCategory.value,
-
-        type: isPaid ? "paid" : "free",
-      });
+      const response = await updateTemplateById(
+        {
+          cover_image: image,
+          type: isPaid ? "paid" : "free",
+        },
+        template?.template_id
+      );
       console.log("response", response);
       setIsLoading(false);
       if (response?.data) {
@@ -192,6 +195,10 @@ const CreateNewTemplate = () => {
           container: "top-right",
           dismiss: { duration: 3000, onScreen: true },
         });
+        //  notification.success({
+        //    message: "success",
+        //    description: "Template Create Successfully!",
+        //  });
         setIsLoading(false);
         setIsButtonDisabled(false);
 
@@ -255,7 +262,7 @@ const CreateNewTemplate = () => {
             accept: "image/png, image/jpeg, image/gif",
             description: "PNG, JPG, GIF up to 10MB",
           }}
-          onChage={onChangeImage}
+          onChange={onChangeImage}
         />
 
         <TemplateTypeSwitch
@@ -266,9 +273,7 @@ const CreateNewTemplate = () => {
         <Button
           content="Done"
           type={
-            updateForm.templateName.value === "" ||
-            updateForm.category.value === "" ||
-            updateForm.subCategory.value === ""
+            image?.file_url === ""
               ? "bg-border-deafult text-disable"
               : "text-white bg-bg_1 "
           }

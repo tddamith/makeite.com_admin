@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { withRouter } from "react-router-dom/cjs/react-router-dom";
 import { imageUpload } from "../../containers/createNewItem/createNewTemplate/service/template.service";
 import { Store } from "react-notifications-component";
+import { notification } from "antd";
 
 const ImgUploader = ({ data, onChange }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -65,27 +66,35 @@ const ImgUploader = ({ data, onChange }) => {
           });
           console.log("Image Upload Response:", response);
           if (response?.data) {
-            onChange(response.data);
-            Store.addNotification({
-              title: "Success",
-              message: "Image Upload successfully",
-              type: "success",
-              container: "top-right",
-              dismiss: {
-                duration: 2000,
-                onScreen: true,
-              },
+            onChange(response?.data);
+            // Store.addNotification({
+            //   title: "Success",
+            //   message: "Image Upload successfully",
+            //   type: "success",
+            //   container: "top-right",
+            //   dismiss: {
+            //     duration: 2000,
+            //     onScreen: true,
+            //   },
+            // });
+            notification.success({
+              message: "success",
+              description: "Image uploaded  successfully",
             });
           } else {
-            Store.addNotification({
-              title: "Error",
-              message: "Image Upload failed",
-              type: "danger",
-              container: "top-right",
-              dismiss: {
-                duration: 2000,
-                onScreen: true,
-              },
+            // Store.addNotification({
+            //   title: "Error",
+            //   message: "Image Upload failed",
+            //   type: "danger",
+            //   container: "top-right",
+            //   dismiss: {
+            //     duration: 2000,
+            //     onScreen: true,
+            //   },
+            // });
+            notification.success({
+              message: "success",
+              description: "Image Upload failed",
             });
           }
           setIsLoading(false);

@@ -8,6 +8,7 @@ import {
 } from "../../containers/createNewItem/createNewTemplate/service/template.service";
 
 import { notification, Progress } from "antd";
+import { Store } from "react-notifications-component";
 
 const Uploader = ({ data, onChange }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -82,39 +83,34 @@ const Uploader = ({ data, onChange }) => {
               if (percentage >= 100) {
                 clearInterval(interval);
                 setIsLoading(false);
+                onChange && onChange(response?.data?.data);
+                Store.addNotification({
+                  title: "Success",
+                  message: "ZIP file uploaded and template create successfully",
+                  type: "success",
+                  container: "top-right",
+                  dismiss: { duration: 2000, onScreen: true },
+                });
               }
             }, 1000);
 
             console.log("Success");
-            // notification.success({
-            //   message: "success",
-            //   description: "ZIP file uploaded and template create successfully",
-            // });
-
-            // onChange && onChange(response.data);
-            // Store.addNotification({
-            //   title: "Success",
-            //   message: "ZIP file uploaded and template create successfully",
-            //   type: "success",
-            //   container: "top-right",
-            //   dismiss: { duration: 2000, onScreen: true },
-            // });
           } else {
             throw new Error("Upload failed");
           }
         } catch (error) {
           console.error("Upload error:", error);
-          // Store.addNotification({
-          //   title: "Error",
-          //   message: "ZIP upload failed",
-          //   type: "danger",
-          //   container: "top-right",
-          //   dismiss: { duration: 2000, onScreen: true },
-          // });
-          // notification.error({
-          //   message: "Error",
-          //   description: error,
-          // });
+          Store.addNotification({
+            title: "Error",
+            message: "ZIP upload failed",
+            type: "danger",
+            container: "top-right",
+            dismiss: { duration: 2000, onScreen: true },
+          });
+          notification.error({
+            message: "Error",
+            description: error,
+          });
           console.log(error);
         }
       };
