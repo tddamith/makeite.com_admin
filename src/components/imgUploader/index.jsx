@@ -124,25 +124,55 @@ const ImgUploader = ({ data, onChange }) => {
         onDrop={onChangeImage}
         onDragOver={(e) => e.preventDefault()}
       >
-        <label
-          //   htmlFor="file-upload"
-          className="flex flex-col items-center justify-center cursor-pointer text-font-default"
-        >
-          <p className="text-sm">
-            <span className="text-primary hover:underline font-medium">
-              Upload a file
-            </span>{" "}
-            or drag and drop
-          </p>
-          <p className="text-sm mt-1 text-font-default">{data?.description}</p>
-          <input
-            id={data?.id}
-            type="file"
-            className="hidden"
-            accept={data?.accept} /*img/zip/pdf*/
-            onChange={onChangeImage}
-          />
-        </label>
+        {!isLoading && (
+          <label
+            //   htmlFor="file-upload"
+            className="flex flex-col items-center justify-center cursor-pointer text-font-default"
+          >
+            <p className="text-sm">
+              <span className="text-primary hover:underline font-medium">
+                Upload a file
+              </span>{" "}
+              or drag and drop
+            </p>
+            <p className="text-sm mt-1 text-font-default">
+              {data?.description}
+            </p>
+            <input
+              id={data?.id}
+              type="file"
+              className="hidden"
+              accept={data?.accept} /*img/zip/pdf*/
+              onChange={onChangeImage}
+            />
+          </label>
+        )}
+
+        {isLoading && (
+          <div className="flex items-center justify-center">
+            <svg
+              className="size-5 animate-spin text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 30 30"
+            >
+              <circle
+                className="opacity-25"
+                cx="15"
+                cy="15"
+                r="13"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75 mt-[-55px]"
+                fill="currentColor"
+                d="M2 10a8 9 0 017-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+            <span className="ml-2 text-sm text-gray-500">Loading...</span>
+          </div>
+        )}
       </div>
     </>
   );

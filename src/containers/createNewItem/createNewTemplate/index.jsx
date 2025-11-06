@@ -4,17 +4,21 @@ import CategorySelectBox from "../../../components/categorySelectBox";
 import SubCategorySelectBox from "../../../components/subCategorySelectBox";
 import Uploader from "../../../components/uploader";
 import TemplateTypeSwitch from "../../../components/switchButton";
-import { Menu, notification } from "antd";
+import { Menu, notification, Progress } from "antd";
 import MenuButtonCard from "../../../components/menuButton";
 import Button from "../../../components/button";
 import { CheckValidity } from "../../../utils/formValidity";
 import {
   createNewTemplate,
+  deleteImage,
+  jobProgress,
   updateTemplateById,
 } from "./service/template.service";
 
 import ImgUploader from "../../../components/imgUploader";
+
 import { Store } from "react-notifications-component";
+import ImageComponent from "../../../components/imageComponent";
 
 const CreateNewTemplate = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +26,7 @@ const CreateNewTemplate = () => {
   const [isPaid, setIsPaid] = useState(false);
   const [image, setImage] = useState("");
   const [template, setTemplate] = useState("");
+  const [progress, setProgress] = useState(0);
   const [formData, setFormData] = useState({
     templateName: {
       key: "templateName",
@@ -121,6 +126,43 @@ const CreateNewTemplate = () => {
     }
   };
 
+  const onClickRemoveImage = async (key) => {
+    setIsLoading(true);
+    try {
+      const res = await deleteImage(key);
+      console.log("remove image", res);
+
+      setImage("");
+      if (res?.data) {
+        Store.addNotification({
+          title: "Success",
+          message: "Image Delete successfully",
+          type: "success",
+          container: "top-right",
+          dismiss: {
+            duration: 2000,
+            onScreen: true,
+          },
+        });
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.log("Error in deleting image", error);
+      Store.addNotification({
+        title: "Error",
+        message: "Image Delete failed",
+        type: "danger",
+        container: "top-right",
+        dismiss: {
+          duration: 2000,
+          onScreen: true,
+        },
+      });
+      setIsLoading(false);
+    }
+  };
+
   const handleChange = async (event, inputIdentity) => {
     const updateForm = {
       ...formData,
@@ -176,35 +218,69 @@ const CreateNewTemplate = () => {
     };
 
     try {
-      const response = await updateTemplateById(
-        {
-          cover_image: image,
-          type: isPaid ? "paid" : "free",
-        },
-        template?.template_id
-      );
+      // const response = await updateTemplateById(
+      //   {
+      //     cover_image: image,
+      //     type: isPaid ? "paid" : "free",
+      //   },
+      //   template?.template_id
+      // );
+
+      const response = await createNewTemplate({
+        template_name: updateForm.templateName.value,
+        category_id: updateForm.category.value,
+        sub_category_id: updateForm.subCategory.value,
+        base64_data: template?.base64_data,
+        filename: template?.filename,
+        cover_image: image,
+        type: isPaid ? "paid" : "free",
+      });
       console.log("response", response);
-      setIsLoading(false);
-      if (response?.data) {
-        // dispatch(addList(response?.data));
+
+      if (response?.data?.data) {
+        const jobId = response?.data?.data?.job_id;
+        if (!jobId) return;
+
+        const interval = setInterval(async () => {
+          const progressResponse = await jobProgress(jobId);
+          console.log(progressResponse);
+          setProgress(0);
+          const percentage = progressResponse.data?.progress || 0;
+
+          setProgress(percentage);
+
+          if (percentage >= 100) {
+            clearInterval(interval);
+            setIsLoading(false);
+
+            Store.addNotification({
+              title: "Success!",
+              message: "Template Create Successfully!",
+              type: "success",
+              insert: "top",
+              container: "top-right",
+              dismiss: { duration: 3000, onScreen: true },
+            });
+
+            setIsLoading(false);
+            setIsButtonDisabled(false);
+
+            clearAll();
+          }
+        }, 1000);
+
+        console.log("Success");
+      } else {
+        setIsLoading(false);
         Store.addNotification({
-          title: "Success!",
-          message: "Template Create Successfully!",
-          type: "success",
+          title: "Error!",
+          message: "Template Create Failed!",
+          type: "danger",
           insert: "top",
           container: "top-right",
           dismiss: { duration: 3000, onScreen: true },
         });
-        //  notification.success({
-        //    message: "success",
-        //    description: "Template Create Successfully!",
-        //  });
-        setIsLoading(false);
-        setIsButtonDisabled(false);
-
-        clearAll();
       }
-      setIsLoading(false);
     } catch (error) {
       console.log("Error ===", error);
       Store.addNotification({
@@ -241,29 +317,73 @@ const CreateNewTemplate = () => {
             category_id: updateForm.category.value,
           }}
         />
-        <Uploader
-          data={{
-            id: "zip-upload",
-            label: "Upload template",
-            accept: ".zip",
-            description: "zip up to 20MB",
-            template_name: updateForm.templateName.value,
-            category: updateForm.category.value,
-            subCategory: updateForm.subCategory.value,
-            type: isPaid ? "paid" : "free",
-          }}
-          onChange={onChangeZip}
-        />
+        {template ? (
+          <>
+            <h2 className="text-md font-medium text-font-default font-manrope  mb-2px">
+              Upload template
+            </h2>
+            <ImageComponent
+              data={{
+                size: "w-[127px] h-[127px] rounded-16px mt-3 object-cover mx-auto",
+                imgUrl: require("../../../assets/img/zipIcon.png"),
+              }}
+              onClickRemove={() => {
+                setIsLoading(true);
+                setTemplate("");
+                setIsLoading(false);
+              }}
+            />
+          </>
+        ) : (
+          <Uploader
+            data={{
+              id: "zip-upload",
+              label: "Upload template",
+              accept: ".zip",
+              description: "zip up to 20MB",
+              template_name: updateForm.templateName.value,
+              category: updateForm.category.value,
+              subCategory: updateForm.subCategory.value,
+              type: isPaid ? "paid" : "free",
+            }}
+            onChange={onChangeZip}
+          />
+        )}
 
-        <ImgUploader
-          data={{
-            id: "img-upload",
-            label: "Template cover image",
-            accept: "image/png, image/jpeg, image/gif",
-            description: "PNG, JPG, GIF up to 10MB",
-          }}
-          onChange={onChangeImage}
-        />
+        <>
+          {image ? (
+            <>
+              <h2 className="text-md font-medium text-font-default font-manrope  mb-2px">
+                Template cover image
+              </h2>
+              <ImageComponent
+                data={{
+                  size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
+                  imgUrl: image?.url,
+                }}
+                onClickRemove={() => {
+                  setIsLoading(true);
+                  if (template?.template_id) {
+                    setImage("");
+                  } else {
+                    onClickRemoveImage(image?.data?.file_name, "image");
+                  }
+                  setIsLoading(false);
+                }}
+              />
+            </>
+          ) : (
+            <ImgUploader
+              data={{
+                id: "img-upload",
+                label: "Template cover image",
+                accept: "image/png, image/jpeg, image/gif",
+                description: "PNG, JPG, GIF up to 10MB",
+              }}
+              onChange={onChangeImage}
+            />
+          )}
+        </>
 
         <TemplateTypeSwitch
           value={isPaid}
@@ -273,17 +393,48 @@ const CreateNewTemplate = () => {
         <Button
           content="Done"
           className={
-            template.template_id
+            updateForm.templateName.value !== "" ||
+            updateForm.category.value !== "" ||
+            updateForm.subCategory.value !== "" ||
+            image?.url ||
+            template?.base64_data
               ? "text-white bg-black"
               : "bg-border-default text-disable"
           }
-          isActive={template?.template_id}
+          isActive={
+            updateForm.templateName.value !== "" ||
+            updateForm.category.value !== "" ||
+            updateForm.subCategory.value !== "" ||
+            image?.url ||
+            template?.base64_data
+              ? "text-white bg-black"
+              : "bg-border-default text-disable"
+          }
           isLoading={isLoading}
           onClick={async (e) => {
+            setIsLoading(true);
             e.preventDefault();
             await onClickSave(e);
           }}
         />
+        {isLoading && progress > 0 && (
+          <div className="top-0 h-full w-full left-0 bottom-0 right-0 fixed bg-black/35 z-50 ">
+            <div
+              className="flex flex-col justify-center items-center ml-[-20px] top-[40%] left-[49.3%] fixed rounded-md bg-white p-11"
+              style={{ width: "405px", height: "auto" }}
+            >
+              <Progress
+                percent={progress}
+                showInfo={false}
+                strokeColor="#BE17FA"
+                trailColor="#e7a9fd"
+              />
+              <span className="mt-2 font-manrope font-semibold text-black">
+                {progress}%
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

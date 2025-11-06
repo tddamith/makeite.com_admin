@@ -1,5 +1,5 @@
 import { RiHome2Line, RiLayout5Line, RiPaletteLine } from "react-icons/ri";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiX } from "react-icons/fi";
 import { PiCirclesFour } from "react-icons/pi";
 
 export const AddIcon = (iconName) => {
@@ -14,6 +14,8 @@ export const AddIcon = (iconName) => {
       return <RiLayout5Line />;
     case "palette":
       return <RiPaletteLine />;
+    case "cross":
+      return <FiX />;
 
     default:
       return;

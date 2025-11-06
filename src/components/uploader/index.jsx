@@ -48,56 +48,58 @@ const Uploader = ({ data, onChange }) => {
       const reader = new FileReader();
       reader.onload = async () => {
         try {
-          const response = await createNewTemplate({
-            template_name: data.template_name,
-            category_id: data.category,
-            sub_category_id: data.subCategory,
+          // const response = await createNewTemplate({
+          //   template_name: data.template_name,
+          //   category_id: data.category,
+          //   sub_category_id: data.subCategory,
+          //   base64_data: reader?.result,
+          //   filename: selectedFile.name,
+          //   type: data.type,
+          // });
+          // console.log("response", response);
+
+          // if (response?.data?.data) {
+          //   const jobId = response?.data?.data?.job_id;
+          //   if (!jobId) return;
+
+          //   const interval = setInterval(async () => {
+          //     const progressResponse = await jobProgress(jobId);
+          //     console.log(progressResponse);
+          //     setProgress(0);
+          //     const percentage = progressResponse.data?.progress || 0;
+
+          //     setProgress(percentage);
+
+          //     if (percentage >= 100) {
+          //       clearInterval(interval);
+          //       setIsLoading(false);
+          //       onChange && onChange(response?.data?.data);
+          //       Store.addNotification({
+          //         title: "Success",
+          //         message: "ZIP file uploaded and template create successfully",
+          //         type: "success",
+          //         container: "top-right",
+          //         dismiss: { duration: 2000, onScreen: true },
+          //       });
+          //     }
+          //   }, 1000);
+
+          //   console.log("Success");
+          // } else {
+          //   throw new Error("Upload failed");
+          // }
+          onChange &&
+            onChange({
+              base64_data: reader?.result,
+              filename: selectedFile.name,
+            });
+          console.log({
             base64_data: reader?.result,
             filename: selectedFile.name,
-            type: data.type,
           });
-          console.log("response", response);
+          console.log({ reader });
 
-          // const response = await zipUpload({
-          //   name: selectedFile.name,
-          //   filename: selectedFile.name,
-          //   type: selectedFile.type,
-          //   size: selectedFile.size,
-          //   base64_data: reader.result,
-          //   file: selectedFile,
-          //   lastModified: selectedFile.lastModified,
-          // });
-
-          if (response?.data?.data) {
-            const jobId = response?.data?.data?.job_id;
-            if (!jobId) return;
-
-            const interval = setInterval(async () => {
-              const progressResponse = await jobProgress(jobId);
-              console.log(progressResponse);
-              setProgress(0);
-              const percentage = progressResponse.data?.progress || 0;
-
-              setProgress(percentage);
-
-              if (percentage >= 100) {
-                clearInterval(interval);
-                setIsLoading(false);
-                onChange && onChange(response?.data?.data);
-                Store.addNotification({
-                  title: "Success",
-                  message: "ZIP file uploaded and template create successfully",
-                  type: "success",
-                  container: "top-right",
-                  dismiss: { duration: 2000, onScreen: true },
-                });
-              }
-            }, 1000);
-
-            console.log("Success");
-          } else {
-            throw new Error("Upload failed");
-          }
+          setIsLoading(false);
         } catch (error) {
           console.error("Upload error:", error);
           Store.addNotification({
@@ -154,7 +156,7 @@ const Uploader = ({ data, onChange }) => {
             />
           </label>
         )}
-
+        {/* 
         {isLoading && (
           <>
             <div
@@ -170,6 +172,31 @@ const Uploader = ({ data, onChange }) => {
               <span className="mt-2">{progress}%</span>
             </div>
           </>
+        )} */}
+        {isLoading && (
+          <div className="flex items-center justify-center">
+            <svg
+              className="size-5 animate-spin text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 30 30"
+            >
+              <circle
+                className="opacity-25"
+                cx="15"
+                cy="15"
+                r="13"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75 mt-[-55px]"
+                fill="currentColor"
+                d="M2 10a8 9 0 017-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+            <span className="ml-2 text-sm text-gray-500">Loading...</span>
+          </div>
         )}
       </div>
     </>

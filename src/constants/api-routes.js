@@ -20,5 +20,6 @@ const ApiRoutes = {
   IMAGE_UPLOAD: "/upload/image",
   ZIP_UPLOAD: "/upload/zip",
   JOB_PROGRESS: "/get/progress/by",
+  DELETE_IMAGE: "/delete/image",
 };
 export default ApiRoutes;

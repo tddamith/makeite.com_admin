@@ -10,6 +10,9 @@ export const updateTemplateById = async (body, template_id) =>
 export const imageUpload = async (body) =>
   mitAdminApi.post(`${ApiRoutes.IMAGE_UPLOAD}`, body);
 
+export const deleteImage = async (key) =>
+  mitAdminApi.delete(`${ApiRoutes.DELETE_IMAGE}/${key}`);
+
 export const zipUpload = async (body) =>
   mitAdminApi.post(`${ApiRoutes.ZIP_UPLOAD}`, body);
 
