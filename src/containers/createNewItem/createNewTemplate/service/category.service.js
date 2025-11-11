@@ -15,6 +15,11 @@ export const getAllSubCategoryByCategoryId = async (category_id) =>
     `${ApiRoutes.GET_ALL_SUB_CATEGORY_BY_CATEGORYID}/${category_id}`
   );
 
+export const getSubCategoryBySubCategoryId = async (sub_category_id) =>
+  mitAdminApi.get(
+    `${ApiRoutes.GET_SUB_CATEGORY_BY_SUB_CATEGORY_ID}/${sub_category_id}`
+  );
+
 // export const updateCategory = async (body, category_id) =>
 //   mitAdminApi.put(`${ApiRoutes.UPDATE_CATEGORY}/${category_id}`, body);
 

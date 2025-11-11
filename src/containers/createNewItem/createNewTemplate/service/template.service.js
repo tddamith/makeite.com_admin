@@ -7,6 +7,9 @@ export const createNewTemplate = async (body) =>
 export const updateTemplateById = async (body, template_id) =>
   mitAdminApi.put(`${ApiRoutes.UPDATE_TEMPLATE_BY_ID}/${template_id}`, body);
 
+export const getAllTemplates = async (body) =>
+  mitAdminApi.get(`${ApiRoutes.GET_ALL_TEMPLATES}`, body);
+
 export const imageUpload = async (body) =>
   mitAdminApi.post(`${ApiRoutes.IMAGE_UPLOAD}`, body);
 

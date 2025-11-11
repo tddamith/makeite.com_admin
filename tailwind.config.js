@@ -20,6 +20,7 @@ module.exports = {
         disable_2: " #EDEDED",
         disable_3: " #CCCCCE",
         bg_1: "#110209",
+        bg_2: "#FBFBFB",
 
         font: {
           primary: "#161625",

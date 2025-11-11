@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { Form } from "react-router-dom";
 import FormHeader from "../../components/formHeader";
 import ToggleButton from "../../components/toggleButton";
-import InputBox from "../../components/inputBox";
 import CreateNewTemplate from "../createNewItem/createNewTemplate";
+import TemplateViewPage from "../templateViewPage";
 
 const Template = () => {
   const [selectedOption, setSelectedOption] = useState("Create new");
@@ -28,13 +27,14 @@ const Template = () => {
         </div>
       </div>
 
-      <div className="mt-8 justify-center flex ml-16">
-        {selectedOption === "Create new" ? (
+      {selectedOption === "Create new" ? (
+        <div className="mt-8 justify-center flex ml-16">
           <CreateNewTemplate />
-        ) : (
-          <div className="text-gray-400">No Details Available.</div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <TemplateViewPage />
+        // <div className="text-gray-400">No Details Available.</div>
+      )}
     </div>
   );
 };
