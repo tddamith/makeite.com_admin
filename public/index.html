@@ -1,51 +1,156 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title data-bind="page.title">Invitation</title>
 
-    <!-- font-manrope -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Dosis:wght@200..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..800&display=swap"
-      rel="stylesheet"
-    />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+  <!-- TailwindCSS (CDN build for quick start). In prod, use your compiled Tailwind. -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+  <!-- Animation utilities you already use -->
+  <link rel="stylesheet" href="assets/css/animation.css" />
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+  <!-- html-to-image for PNG export -->
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js" defer></script>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+  <!-- A tiny helper style that Tailwind can't express directly (CSS var transform) -->
+  <style>
+    :root{
+      /* fallback theme vars (overridden by mainfast.json via JS) */
+      --radius: 24px;
+    }
+    /* Preview scaling: auto fit (--scale) × user zoom (--zoom) */
+    #card-wrap{
+      --scale: 1;
+      --zoom: 1;
+      transform: scale(calc(var(--scale) * var(--zoom)));
+      transform-origin: top left;
+    }
+    /* Fixed pixel card; JS will set exact width/height/bg from mainfast.json */
+    #card{
+      width: 1050px;          /* default; replaced by JS */
+      height: 1500px;         /* default; replaced by JS */
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    /* Safe padding inside the card; JS will override */
+    #card-safe{ padding: 36px; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-900 selection:bg-fuchsia-200">
+
+<!-- Header -->
+<header class="w-full border-b border-slate-200/60 bg-white/70 backdrop-blur sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-center gap-3">
+      <img data-bind="brand.logo" alt="Brand" class="h-8 w-auto" />
+      <span class="text-sm text-slate-500 hidden sm:inline">Invitation</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btn-download" class="inline-flex items-center justify-center rounded-xl bg-fuchsia-600 text-white px-3 py-2 text-sm font-semibold shadow hover:opacity-90">
+        Download PNG
+      </button>
+      <button id="btn-share" class="inline-flex items-center justify-center rounded-xl border border-fuchsia-600 text-fuchsia-700 px-3 py-2 text-sm font-semibold hover:bg-fuchsia-50">
+        Share Link
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Stage -->
+<main class="w-full">
+  <div class="max-w-[92rem] mx-auto px-3 sm:px-4 md:px-6">
+    <!-- Responsive grid: card centered, optional right column in future -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,320px)] gap-6 lg:gap-8 py-6 md:py-8">
+
+      <!-- Card column -->
+      <div class="w-full flex justify-center">
+        <!-- The wrapper scales for responsiveness; the #card inside stays true-size -->
+        <div id="card-wrap">
+          <!-- Fixed-size card (export target) -->
+          <section id="card" role="img" aria-label="Invitation Card"
+                   class="bg-white shadow-2xl ring-1 ring-black/5">
+            <!-- Safe content area -->
+            <div id="card-safe" class="h-full grid content-start gap-4">
+              <!-- HERO -->
+              <section class="hero relative grid place-items-center text-center rounded-2xl p-4 sm:p-6"
+                       data-section="hero" data-animate="hero"
+                       style="background-size:cover;background-position:center;">
+                <div class="hero-inner max-w-[85%]">
+                  <h1 class="title font-bold tracking-tight" data-bind="hero.title">You're Invited</h1>
+                  <p class="subtitle text-slate-600 mt-2" data-bind="hero.subtitle">Join us for a special day</p>
+
+                  <div class="event meta mt-3 font-medium text-slate-700">
+                    <span class="date" data-bind="event.date">Jan 01, 2026</span> ·
+                    <span class="time" data-bind="event.time">6:00 PM</span> ·
+                    <span class="venue" data-bind="event.venue">Colombo</span>
+                  </div>
+
+                  <a id="cta" class="mt-4 inline-flex items-center justify-center rounded-2xl bg-fuchsia-600 text-white px-4 py-2 text-base font-semibold shadow hover:opacity-90"
+                     href="#" data-bind="cta.href" data-animate="cta">
+                    <span data-bind="cta.label">RSVP Now</span>
+                  </a>
+                </div>
+              </section>
+
+              <!-- DETAILS -->
+              <section class="details rounded-2xl bg-white/90 p-4 sm:p-5 ring-1 ring-slate-200"
+                       data-section="details">
+                <h2 class="text-lg sm:text-xl font-semibold" data-bind="details.heading">Event Details</h2>
+                <p class="mt-2 text-slate-700" data-bind="details.body">
+                  Dress code, parking, directions, and more info here.
+                </p>
+              </section>
+
+              <!-- RSVP (optional – if you still render a form) -->
+              <section class="rsvp rounded-2xl bg-white/90 p-4 sm:p-5 ring-1 ring-slate-200"
+                       data-section="rsvp" data-animate="form">
+                <h2 class="text-lg sm:text-xl font-semibold" data-bind="form.heading">RSVP</h2>
+                <form id="rsvp-form" novalidate class="mt-3">
+                  <div class="form-fields grid gap-3 sm:grid-cols-2" data-form-fields></div>
+                  <button class="mt-3 inline-flex items-center justify-center rounded-xl bg-fuchsia-600 text-white px-4 py-2 text-sm font-semibold shadow hover:opacity-90"
+                          type="submit" data-bind="form.submit.label">Send RSVP</button>
+                  <p class="form-note text-slate-500 text-sm mt-2" data-bind="form.note"></p>
+                </form>
+              </section>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- (Optional) Right rail – you can show live fields, color/theme pickers, etc. -->
+      <aside class="hidden lg:block">
+        <div class="sticky top-20 space-y-3">
+          <div class="rounded-2xl bg-white/90 p-4 ring-1 ring-slate-200">
+            <p class="text-sm text-slate-600">Size: <span id="card-size-label" class="font-medium">—</span></p>
+            <p class="text-xs text-slate-500 mt-1">Preview scales to fit; export keeps true pixel size.</p>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<footer class="w-full py-6">
+  <div class="max-w-6xl mx-auto px-4">
+    <p class="text-slate-400 text-sm" data-bind="footer.note">Made with ♥</p>
+  </div>
+</footer>
+
+<!-- Zoom Controls (Tailwind-styled) -->
+<div class="zoombar fixed right-4 bottom-4 z-50 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 shadow-xl backdrop-blur">
+  <button class="zbtn inline-flex items-center justify-center rounded-lg bg-fuchsia-600 px-2.5 py-1.5 text-white text-sm font-semibold" id="z-out" title="Zoom out (–)">–</button>
+  <input class="w-40 accent-fuchsia-600" type="range" id="z-range" min="25" max="400" value="100" step="5" aria-label="Zoom percentage" />
+  <span id="z-label" class="text-sm tabular-nums">100%</span>
+  <button class="zbtn inline-flex items-center justify-center rounded-lg bg-fuchsia-600 px-2.5 py-1.5 text-white text-sm font-semibold" id="z-in" title="Zoom in (+)">+</button>
+  <button class="zbtn inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-slate-700 text-sm font-semibold bg-white" id="z-reset" title="Reset zoom">100%</button>
+  <button class="zbtn inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-slate-700 text-sm font-semibold bg-white" id="z-fit" title="Fit to screen">Fit</button>
+</div>
+
+<!-- Your runtime applier (unchanged API – reads mainfast.json) -->
+<script src="assets/js/main.js" defer></script>
+</body>
 </html>

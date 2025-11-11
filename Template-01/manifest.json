@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "templateId": "clean-invite-v1",
+    "version": 1
+  },
+  "theme": {
+    "vars": {
+      "bg": "#385456",
+      "card": "#ffffff",
+      "ink": "#0b1220",
+      "muted": "#6b7280",
+      "primary": "#fb3e3e",
+      "radius": "18px"
+    },
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap"
+    ]
+  },
+  "page": {
+    "title": "Aadhya & Nilan — Wedding Invite"
+  },
+  "brand": {
+    "logo": "assets/images/logo.png"
+  },
+  "hero": {
+    "title": "You're Invited",
+    "subtitle": "Celebrate with us",
+    "background": "assets/images/hero.jpg"
+  },
+  "event": {
+    "date": "Sunday, 23 Feb 2026",
+    "time": "6:30 PM",
+    "venue": "Galle Face Hotel, Colombo"
+  },
+  "cta": {
+    "label": "RSVP Now",
+    "href": "#rsvp"
+  },
+  "details": {
+    "heading": "Event Details",
+    "body": "Ceremony at 6:30 PM followed by dinner. Dress code: Elegant. Parking available on site."
+  },
+  "form": {
+    "heading": "RSVP",
+    "note": "Please RSVP by Feb 10.",
+    "fields": [
+      { "id": "full_name", "name": "full_name", "label": "Full Name", "type": "text", "placeholder": "Your name", "required": true, "fullWidth": true },
+      { "id": "email", "name": "email", "label": "Email", "type": "email", "placeholder": "you@example.com", "required": true },
+      { "id": "guests", "name": "guests", "label": "Guests", "type": "number", "placeholder": "1" },
+      { "id": "diet", "name": "diet", "label": "Dietary Preference", "type": "select", "options": [
+        { "label": "None", "value": "" },
+        { "label": "Vegetarian", "value": "veg" },
+        { "label": "Vegan", "value": "vegan" },
+        { "label": "Gluten-free", "value": "gf" }
+      ], "fullWidth": true },
+      { "id": "message", "name": "message", "label": "Message", "type": "textarea", "placeholder": "Anything we should know?", "fullWidth": true }
+    ],
+    "submit": { "label": "Send RSVP" }
+  },
+  "footer": {
+    "note": "See you there!"
+  },
+  "backgrounds": [
+    {
+      "selector": ".hero",
+      "image": "assets/images/.png",
+      "size": "cover",
+      "position": "center"
+    }
+  ],
+  "animations": [
+    { "selector": "[data-animate='hero']", "class": "animate-fade-in-up", "delayMs": 100 },
+    { "selector": "#cta", "class": "animate-pop", "delayMs": 250 },
+    { "selector": "[data-animate='form']", "class": "animate-fade-in-up", "delayMs": 150 }
+  ],
+  "buttons": [
+    {
+      "selector": "#cta",
+      "variant": "primary",
+      "href": "#rsvp",
+      "styles": { "fontSize": "clamp(14px, 2vw, 18px)", "padding": "14px 22px" }
+    }
+  ],
+  "styles": {
+    "hero_title": { "fontSize": "clamp(28px, 6vw, 56px)", "fontWeight": "700", "letterSpacing": "-0.02em" },
+    "hero_subtitle": { "fontSize": "clamp(14px, 2.4vw, 18px)" },
+    "event_date": { "fontWeight": "600" },
+    "details_heading": { "fontSize": "clamp(18px, 3.5vw, 28px)", "marginBottom": "8px" }
+  },
+  "card": {
+    "size": { "width": 1500, "height": 2100 },
+    "dpi": 300,
+    "safePadding": 60,
+    "bleed": 0,
+    "backgroundColor": "#ffffff",
+    "transparentBackground": false,
+    "export": { "scale": 2, "filename": "invitation-5x7.png" },
+    "preview": { "fit": true, "zoom": 1.0 }
+  },
+  "intro": {
+    "enabled": true,
+    "useOnce": true,
+    "patternImage": "assets/images/envelope-pattern.png",
+    "timing": { "flap": 900, "letter": 1200, "fade": 450, "holdAfter": 300 }
+  }
+}
