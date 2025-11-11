@@ -25,8 +25,8 @@ const TemplateViewPage = () => {
 
   return (
     <div className="flex flex-col ">
-      <div className="bg-bg_2 flex flex-row gap-40 font-manrope font-medium text-md text-font-default  p-6">
-        <div className="ml-[200px]">Template name</div>
+      <div className="bg-bg_2 flex flex-row gap-36 font-manrope font-medium text-md text-font-default  p-6">
+        <div className="ml-[190px]">Template name</div>
         <div className="">Category</div>
         <div className="">Type</div>
         <div className="">Status</div>
