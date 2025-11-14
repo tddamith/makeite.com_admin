@@ -17,6 +17,7 @@ const ApiRoutes = {
   CREATE_TEMPLATE: "/create/new/template",
   UPDATE_TEMPLATE_BY_ID: "/update/template/by",
   GET_ALL_TEMPLATES: "/get/all/templates",
+  GET_TEMPLATE_BY_PAGE: "/get/template",
 
   //MEDIA UPLOAD
   IMAGE_UPLOAD: "/upload/image",

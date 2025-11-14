@@ -9,10 +9,10 @@ const CategorySelectBox = ({ data, onChangeCategory }) => {
   const [formData, setFormData] = useState({
     category: {
       key: "category",
-      label: "Category",
+      label: data?.label,
       size: "lg",
-      placeholder: "Ex : Wedding",
-      mainLayerStyles: " flex-col align-content-center mb-3",
+      placeholder: data?.placeholder,
+      mainLayerStyles: " flex-col align-content-center h-full w-full",
       iconName: "",
       isRequired: false,
       loading: false,

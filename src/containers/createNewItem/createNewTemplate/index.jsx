@@ -310,7 +310,10 @@ const CreateNewTemplate = () => {
             await handleChange(e.target.value, updateForm.templateName.key);
           }}
         />
-        <CategorySelectBox onChangeCategory={categorySelect} />
+        <CategorySelectBox
+          data={{ label: "Category", placeholder: "Ex: Wedding" }}
+          onChangeCategory={categorySelect}
+        />
         <SubCategorySelectBox
           onChangeSubCategory={subCategorySelect}
           data={{
