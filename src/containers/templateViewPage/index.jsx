@@ -179,6 +179,7 @@ const TemplateViewPage = () => {
 
         if (getTemplateDetails?.data?.templates?.length) {
           setTempList(getTemplateDetails?.data?.templates);
+          setFilteredList(getTemplateDetails?.data?.templates);
 
           // Extract unique statuses from all templates
           const statuses = [
@@ -260,34 +261,25 @@ const TemplateViewPage = () => {
     }
   };
 
-  const handleSearch = async () => {
-    // Get all form values
+  const handleSearch = () => {
+    const id = formData.templateId.value;
+    const name = formData.templateName.value;
+    const category = formData.category.value;
+    const status = formData.status.value;
 
-    const updateForm = {
-      ...formData,
-    };
     const filtered = tempList.filter((item) => {
       const matchId =
-        !updateForm.templateId.value ||
-        item.templateId
-          ?.toString()
-          .toLowerCase()
-          .includes(updateForm.templateId.value.toLowerCase());
+        !id ||
+        item.templateId?.toString().toLowerCase().includes(id.toLowerCase());
 
       const matchName =
-        !updateForm.templateName.value ||
-        item.templateName
-          ?.toLowerCase()
-          .includes(updateForm.templateName.value.toLowerCase());
+        !name || item.templateName?.toLowerCase().includes(name.toLowerCase());
 
       const matchCategory =
-        !updateForm.category.value ||
-        item.category?.toLowerCase() ===
-          updateForm.category.value.toLowerCase();
+        !category || item.category?.toLowerCase() === category.toLowerCase();
 
       const matchStatus =
-        !updateForm.status.value ||
-        item.status?.toLowerCase() === updateForm.status.value.toLowerCase();
+        !status || item.status?.toLowerCase() === status.toLowerCase();
 
       return matchId && matchName && matchCategory && matchStatus;
     });
@@ -379,7 +371,7 @@ const TemplateViewPage = () => {
             isLoading={isLoading}
             onClick={async (e) => {
               e.preventDefault();
-              await handleSearch();
+              handleSearch();
             }}
           />
         </div>
