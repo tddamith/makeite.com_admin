@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import InputBox from "../../components/inputBox";
 import Button from "../../components/button";
 import { CheckValidity } from "../../utils/formValidity";
-import bgImage from "../../assets/img/ImgBg.png";
+import bgLine1 from "../../assets/img/Vector2.png";
+import bgLine2 from "../../assets/img/Vector3.png";
+import VersionLabel from "../../components/versionLabel";
 
 const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -87,14 +89,19 @@ const SignIn = () => {
   const updateForm = { ...formData };
 
   return (
-    <div className="flex flex-col w-full  bg-cover bg-center my-0 mx-auto">
+    <div className="flex flex-col w-full h-screen bg-bg_3 my-0 mx-auto">
       <img
-        src={bgImage}
+        src={bgLine2}
         alt="background image"
-        className="w-full  h-auto object-cover"
+        className="w-full h-full object-cover absolute top-[-150px] "
+      />
+      <img
+        src={bgLine1}
+        alt="background image"
+        className="w-full h-auto object-cover absolute top-[150px] "
       />
 
-      <div className="  flex flex-col z-30 my-8 left-[950px] bg-white w-[425px] h-auto  rounded-md border-x_sm border-border-deafult font-manrope justify-center p-10 absolute">
+      <div className="flex flex-col z-30 my-8 mx-auto bg-white w-[425px] h-auto  rounded-md border-x_sm border-border-deafult font-manrope justify-center p-10 ">
         <img
           src={require("../../assets/img/logo.png")}
           alt="logo"
@@ -137,6 +144,9 @@ const SignIn = () => {
             //   }}
           />
         </div>
+      </div>
+      <div className="flex justify-center items-center">
+        <VersionLabel style="text-center " />
       </div>
     </div>
   );

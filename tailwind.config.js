@@ -21,6 +21,7 @@ module.exports = {
         disable_3: " #CCCCCE",
         bg_1: "#110209",
         bg_2: "#FBFBFB",
+        bg_3: " #BEEA94",
 
         font: {
           primary: "#161625",
