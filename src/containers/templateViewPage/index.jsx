@@ -19,7 +19,6 @@ const TemplateViewPage = () => {
   const [pageSize, setPageSize] = useState(5);
   const [pageCount, setPageCount] = useState(20);
   const [count, setCount] = useState("");
-  const [templateList, setTemplateList] = useState("");
 
   const [filteredList, setFilteredList] = useState([]);
   const [formData, setFormData] = useState({
@@ -149,7 +148,7 @@ const TemplateViewPage = () => {
 
     setFormData(updateForm);
     setIsLoading(false);
-    setFilteredList(tempList);
+    setFilteredList([]);
   };
 
   // useEffect(() => {
@@ -179,7 +178,6 @@ const TemplateViewPage = () => {
 
         if (getTemplateDetails?.data?.templates?.length) {
           setTempList(getTemplateDetails?.data?.templates);
-          setFilteredList(getTemplateDetails?.data?.templates);
 
           // Extract unique statuses from all templates
           const statuses = [
@@ -223,12 +221,12 @@ const TemplateViewPage = () => {
       console.log("Get template In page: ", response);
 
       if (response?.data) {
-        setTemplateList(response?.data?.templates);
+        setTempList(response?.data?.templates);
         setPageCount(response?.data?.count);
         setPageNo(1);
         setCount(response?.data?.total_count);
       } else {
-        setTemplateList([]);
+        setTempList([]);
         console.log("Data Not Found");
       }
     } catch (error) {
@@ -247,7 +245,7 @@ const TemplateViewPage = () => {
         let response = await getTemplateByPage(size, pageNumber);
         console.log("response template::", response?.data);
         if (response?.data?.templates?.length > 0) {
-          setTemplateList(response?.data?.templates);
+          setTempList(response?.data?.templates);
           setPageNo(pageNumber);
           setPageSize(size);
           setPageCount(response?.data?.count);
@@ -261,25 +259,44 @@ const TemplateViewPage = () => {
     }
   };
 
+  // const handleSearch = () => {
+  //   const id = formData.templateId.value;
+  //   const name = formData.templateName.value;
+  //   const category = formData.category.value;
+  //   const status = formData.status.value;
+
+  //   const filtered = tempList.filter((item) => {
+  //     if (status.toLowerCase() === item.status.toLowerCase()) {
+  //       return item;
+  //     }
+  //     if (id === item.template_id) {
+  //       return item;
+  //     }
+  //     if (name.toLowerCase() === item.template_name.toLowerCase()) {
+  //       return item;
+  //     }
+  //     if (category === item.category_id) {
+  //       return item;
+  //     }
+  //   });
+
+  //   setFilteredList(filtered);
+  //   console.log("Filtered Templates:", filtered);
+  // };
+
   const handleSearch = () => {
-    const id = formData.templateId.value;
-    const name = formData.templateName.value;
+    const id = formData.templateId.value.trim();
+    const name = formData.templateName.value.trim().toLowerCase();
     const category = formData.category.value;
-    const status = formData.status.value;
+    const status = formData.status.value.toLowerCase();
 
     const filtered = tempList.filter((item) => {
-      const matchId =
-        !id ||
-        item.templateId?.toString().toLowerCase().includes(id.toLowerCase());
-
-      const matchName =
-        !name || item.templateName?.toLowerCase().includes(name.toLowerCase());
-
-      const matchCategory =
-        !category || item.category?.toLowerCase() === category.toLowerCase();
-
-      const matchStatus =
-        !status || item.status?.toLowerCase() === status.toLowerCase();
+      const matchId = id ? item.template_id === id : true;
+      const matchName = name
+        ? item.template_name.toLowerCase().includes(name)
+        : true;
+      const matchCategory = category ? item.category_id === category : true;
+      const matchStatus = status ? item.status.toLowerCase() === status : true;
 
       return matchId && matchName && matchCategory && matchStatus;
     });
@@ -396,7 +413,7 @@ const TemplateViewPage = () => {
 
           <div className="container">
             <div className="grid grid-cols-5 gap-5 mt-10">
-              {(filteredList.length ? filteredList : tempList).map(
+              {(filteredList.length > 0 ? filteredList : tempList).map(
                 (template, index) => (
                   <div
                     key={index}
