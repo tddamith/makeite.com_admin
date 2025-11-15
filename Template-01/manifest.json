@@ -5,7 +5,7 @@
   },
   "theme": {
     "vars": {
-      "bg": "#385456",
+      "bg": "#385036",
       "card": "#ffffff",
       "ink": "#0b1220",
       "muted": "#6b7280",
@@ -20,12 +20,12 @@
     "title": "Aadhya & Nilan — Wedding Invite"
   },
   "brand": {
-    "logo": "assets/images/logo.png"
+    "logo": "assets/images/Rehaya.png"
   },
   "hero": {
     "title": "You're Invited",
     "subtitle": "Celebrate with us",
-    "background": "assets/images/hero.jpg"
+    "background": "assets/images/Rehaya.png"
   },
   "event": {
     "date": "Sunday, 23 Feb 2026",
