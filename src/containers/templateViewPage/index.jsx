@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TemplateViewCard from "../../components/templateViewCard";
 import {
   getAllTemplates,
+  getAllTemplatesStatus,
   getTemplateByPage,
 } from "../createNewItem/createNewTemplate/service/template.service";
 import InputBox from "../../components/inputBox";
@@ -154,11 +155,11 @@ const TemplateViewPage = () => {
   // useEffect(() => {
   //   const fetchData = async () => {
   //     try {
-  //       const getTemplateDetails = await getAllTemplates();
-  //       console.log("Get All Templates", getTemplateDetails);
+  //       const getTemplateStatusDetails = await getAllTemplates();
+  //       console.log("Get All Templates", getTemplateStatusDetails);
 
-  //       if (getTemplateDetails?.data?.templates) {
-  //         setTempList(getTemplateDetails?.data?.templates);
+  //       if (getTemplateStatusDetails?.data?.templates) {
+  //         setTempList(getTemplateStatusDetails?.data?.templates);
 
   //       } else {
   //         console.log("Data Not found");
@@ -173,15 +174,13 @@ const TemplateViewPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const getTemplateDetails = await getAllTemplates();
-        console.log("Get All Templates", getTemplateDetails);
+        const getTemplateStatusDetails = await getAllTemplatesStatus();
+        console.log("Get All Templates Status", getTemplateStatusDetails);
 
-        if (getTemplateDetails?.data?.templates?.length) {
-          setTempList(getTemplateDetails?.data?.templates);
-
+        if (getTemplateStatusDetails?.data?.data) {
           // Extract unique statuses from all templates
           const statuses = [
-            ...new Set(getTemplateDetails.data.templates.map((t) => t.status)),
+            ...new Set(getTemplateStatusDetails.data.data.map((t) => t.status)),
           ].filter(Boolean); // remove undefined/null
 
           const statusList = await syncStatus(statuses);
@@ -367,14 +366,14 @@ const TemplateViewPage = () => {
           <Button
             content="clear"
             className={
-              updateForm.templateId.value === "" ||
-              updateForm.templateName === "" ||
-              updateForm.category.value === "" ||
-              updateForm.status.value === ""
-                ? "text-black bg-white border-black"
-                : ""
+              updateForm.templateId.value !== "" ||
+              updateForm.templateName !== "" ||
+              updateForm.category.value !== "" ||
+              updateForm.status.value !== ""
+                ? "text-black bg-white border-black border-[1px]"
+                : "text-black bg-white border-black"
             }
-            isActive={"text-white bg-black"}
+            isActive={"text-black bg-white border-black"}
             isLoading={isLoading}
             onClick={async (e) => {
               e.preventDefault();
@@ -383,8 +382,15 @@ const TemplateViewPage = () => {
           />
           <Button
             content="Search"
-            className="text-white bg-black border-black hover:bg-secondary "
-            isActive="text-white bg-secondary border-black"
+            className={
+              updateForm.templateId.value !== "" ||
+              updateForm.templateName !== "" ||
+              updateForm.category.value !== "" ||
+              updateForm.status.value !== ""
+                ? "text-white bg-black border-black border-[1px]"
+                : "text-white bg-black border-black"
+            }
+            isActive="text-white bg-black border-black"
             isLoading={isLoading}
             onClick={async (e) => {
               e.preventDefault();
@@ -412,20 +418,26 @@ const TemplateViewPage = () => {
           </div>
 
           <div className="container">
-            <div className="grid grid-cols-5 gap-5 mt-10">
+            <div
+              className="grid 
+          grid-cols-1 
+          sm:grid-cols-2 
+          md:grid-cols-3 
+          lg:grid-cols-4 
+          xl:grid-cols-5 gap-7 mt-10"
+            >
               {(filteredList.length > 0 ? filteredList : tempList).map(
                 (template, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center overflow-hidden hover:scale-105 transition-transform duration-200"
-                  >
-                    <TemplateCard
-                      data={{
-                        image: template?.cover_image?.url,
-                      }}
-                      onClick={() => console.log("Clicked:", template)}
-                    />
-                  </div>
+                  <TemplateCard
+                    data={{
+                      image: template?.cover_image?.url,
+                      tag: template?.type,
+                      name: template?.template_name,
+                      category: template?.category_name,
+                      subCategory: template?.sub_category_name,
+                    }}
+                    onClick={() => console.log("Clicked:", template)}
+                  />
                 )
               )}
             </div>

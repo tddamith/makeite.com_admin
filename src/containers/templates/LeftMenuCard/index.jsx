@@ -6,6 +6,7 @@ import { AddIcon } from "../../../config/icon";
 import Logo from "../../../components/logo";
 import VersionLabel from "../../../components/versionLabel";
 import { withRouter } from "react-router-dom/cjs/react-router-dom";
+import LogOutButton from "../../../components/logOutButton";
 
 const Index = (props) => {
   const [menuName, setMenuName] = useState("");
@@ -44,8 +45,9 @@ const Index = (props) => {
             />
           </div>
         </div>
-        <div className="">
+        <div className=" flex flex-row justify-between">
           <VersionLabel />
+          <LogOutButton />
         </div>
       </div>
     </>
