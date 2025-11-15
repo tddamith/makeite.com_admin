@@ -10,6 +10,12 @@ export const updateTemplateById = async (body, template_id) =>
 export const getAllTemplates = async (body) =>
   mitAdminApi.get(`${ApiRoutes.GET_ALL_TEMPLATES}`, body);
 
+export const getAllTemplatesStatus = async (body) =>
+  mitAdminApi.get(`${ApiRoutes.GET_TEMPLATE_STATUS}`, body);
+
+export const getTemplateByPage = async (pageCount, pageNo) =>
+  mitAdminApi.get(`${ApiRoutes.GET_TEMPLATE_BY_PAGE}/${pageCount}/${pageNo}`);
+
 export const imageUpload = async (body) =>
   mitAdminApi.post(`${ApiRoutes.IMAGE_UPLOAD}`, body);
 

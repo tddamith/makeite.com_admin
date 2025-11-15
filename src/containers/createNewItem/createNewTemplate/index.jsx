@@ -310,7 +310,10 @@ const CreateNewTemplate = () => {
             await handleChange(e.target.value, updateForm.templateName.key);
           }}
         />
-        <CategorySelectBox onChangeCategory={categorySelect} />
+        <CategorySelectBox
+          data={{ label: "Category", placeholder: "Ex: Wedding" }}
+          onChangeCategory={categorySelect}
+        />
         <SubCategorySelectBox
           onChangeSubCategory={subCategorySelect}
           data={{
@@ -399,7 +402,7 @@ const CreateNewTemplate = () => {
             image?.url ||
             template?.base64_data
               ? "text-white bg-black"
-              : "bg-border-default text-disable"
+              : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
           }
           isActive={
             updateForm.templateName.value !== "" ||
@@ -408,7 +411,7 @@ const CreateNewTemplate = () => {
             image?.url ||
             template?.base64_data
               ? "text-white bg-black"
-              : "bg-border-default text-disable"
+              : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
           }
           isLoading={isLoading}
           onClick={async (e) => {

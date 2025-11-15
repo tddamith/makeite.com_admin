@@ -10,7 +10,7 @@ const DropBox = ({ data, onChange }) => {
   inputElement = (
     <>
       <Select
-        className={`font-manrope p-[-50px] text-md text-disable ${data?.size}`}
+        className={`font-manrope p-[-50px] text-md text-disable ${data?.size} `}
         placeholder={data?.placeholder}
         loading={data?.loading}
         defaultValue={data?.defaultValue}
