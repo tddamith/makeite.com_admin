@@ -3,7 +3,7 @@ import React from "react";
 const Button = (props) => {
   return (
     <div
-      className={`flex flex-row items-center justify-center h-[42px] rounded-sm font-manrope cursor-pointer  text-md gap-2 font-bold p-3 hover:text-white hover:bg-bg_1   ${props.className} ${props.isActive} `}
+      className={`flex flex-row items-center justify-center w-full h-[42px] rounded-sm font-manrope cursor-pointer  text-md gap-2 font-bold p-3 hover:text-white hover:bg-bg_1   ${props.className} ${props.isActive} `}
       type={props.type}
       onClick={props.onClick}
     >

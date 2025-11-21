@@ -22,11 +22,14 @@ module.exports = {
         bg_1: "#110209",
         bg_2: "#FBFBFB",
         bg_3: " #BEEA94",
+        bg_4: " #FFEEE5",
+        bg_5: "#F8E6FF",
 
         font: {
           primary: "#161625",
           secondary: " #89898A",
           default: " #0A071B",
+          hover: "#C71111",
         },
 
         border: {

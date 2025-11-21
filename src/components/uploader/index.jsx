@@ -8,9 +8,9 @@ import {
 } from "../../containers/createNewItem/createNewTemplate/service/template.service";
 
 import { notification, Progress } from "antd";
-import { Store } from "react-notifications-component";
+import ImageUploaderPreview from "../imageUploaderPreview";
 
-const Uploader = ({ data, onChange }) => {
+const Uploader = ({ data, onChange, onClickRemove }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -102,16 +102,17 @@ const Uploader = ({ data, onChange }) => {
           setIsLoading(false);
         } catch (error) {
           console.error("Upload error:", error);
-          Store.addNotification({
-            title: "Error",
-            message: "ZIP upload failed",
-            type: "danger",
-            container: "top-right",
-            dismiss: { duration: 2000, onScreen: true },
-          });
+          // Store.addNotification({
+          //   title: "Error",
+          //   message: "ZIP upload failed",
+          //   type: "danger",
+          //   container: "top-right",
+          //   dismiss: { duration: 2000, onScreen: true },
+          // });
           notification.error({
             message: "Error",
             description: error,
+            placement: "topRight",
           });
           console.log(error);
         }
@@ -174,29 +175,41 @@ const Uploader = ({ data, onChange }) => {
           </>
         )} */}
         {isLoading && (
-          <div className="flex items-center justify-center">
-            <svg
-              className="size-5 animate-spin text-primary"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 30 30"
-            >
-              <circle
-                className="opacity-25"
-                cx="15"
-                cy="15"
-                r="13"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75 mt-[-55px]"
-                fill="currentColor"
-                d="M2 10a8 9 0 017-8v4a4 4 0 00-4 4H4z"
-              ></path>
-            </svg>
-            <span className="ml-2 text-sm text-gray-500">Loading...</span>
-          </div>
+          // <div className="flex items-center justify-center">
+          //   <svg
+          //     className="size-5 animate-spin text-primary"
+          //     xmlns="http://www.w3.org/2000/svg"
+          //     fill="none"
+          //     viewBox="0 0 30 30"
+          //   >
+          //     <circle
+          //       className="opacity-25"
+          //       cx="15"
+          //       cy="15"
+          //       r="13"
+          //       stroke="currentColor"
+          //       strokeWidth="4"
+          //     ></circle>
+          //     <path
+          //       className="opacity-75 mt-[-55px]"
+          //       fill="currentColor"
+          //       d="M2 10a8 9 0 017-8v4a4 4 0 00-4 4H4z"
+          //     ></path>
+          //   </svg>
+          //   <span className="ml-2 text-sm text-gray-500">Loading...</span>
+          // </div>
+          <ImageUploaderPreview
+            data={{
+              size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
+              isActive: !isLoading ? "bg-bg_4 text-font-hover" : "",
+              imgUrl: data?.imgUrl,
+              name: "Image Name",
+              fileSize: "400KB",
+              isLoading: isLoading,
+              progress: data?.progress,
+            }}
+            onClickRemove={onClickRemove}
+          />
         )}
       </div>
     </>

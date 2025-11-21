@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 
 import DropBox from "../dropBox";
 import { getAllSubCategoryByCategoryId } from "../../containers/createNewItem/createNewTemplate/service/category.service";
+import Tag from "../tag";
 
 const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
+  const [selectData, setSelectData] = useState("");
   const [formData, setFormData] = useState({
     subCategory: {
       key: "subCategory",
       label: "Sub Category",
       size: "lg",
-      placeholder: "ex : makeite@example.com",
-      mainLayerStyles: " flex-col align-content-center mb-3",
+      placeholder: "Ex: Wedding Invites",
+      mainLayerStyles: " flex-col align-content-center mb-3 w-full ",
       iconName: "",
       isRequired: false,
       loading: false,
@@ -38,6 +40,20 @@ const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
       updateForm.subCategory.loading = false;
       // dispatch(setCategoryList(response.data));
 
+      if (data?.sub_category_id) {
+        const selected = categoryList?.find(
+          (w) => w.id === data.sub_category_id
+        );
+        console.log(selected);
+        if (selected) {
+          setSelectData(selected);
+          const updateForm = { ...formData };
+          updateForm.subCategory.value = selected.value;
+          setFormData(updateForm);
+          onChangeSubCategory(selected.id);
+        }
+      }
+
       setFormData(updateForm);
     }
   };
@@ -61,20 +77,46 @@ const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
     }
   }, [data.category_id]);
 
+  // --- When editing, set initial selected widget ---
+  useEffect(() => {
+    console.log(data?.sub_category_id);
+  }, [data.sub_category_id]);
+
   const updateform = { ...formData };
 
   return (
     <>
-      <DropBox
-        data={updateform.subCategory}
-        onChange={(e) => {
-          const updateForm = { ...formData };
-          updateForm["subCategory"].value = e;
-          setFormData(updateForm);
-          console.log("Sub Category Select Box:", e);
-          onChangeSubCategory(e);
-        }}
-      />
+      <div className="flex flex-col w-full">
+        <DropBox
+          data={updateform.subCategory}
+          onChange={(e) => {
+            const updateForm = { ...formData };
+            updateForm["subCategory"].value = e;
+            setFormData(updateForm);
+            console.log("Sub Category Select Box:", e);
+            onChangeSubCategory(e);
+          }}
+        />
+        <div className="flex flex-row flex-wrap ">
+          {selectData && (
+            <Tag
+              key={selectData.id}
+              data={{
+                name: selectData?.displayValue,
+                tagIcon: "cross",
+                style: "bg-disable_2 px-3",
+              }}
+              onClick={() => {
+                setSelectData("");
+                const resetForm = { ...formData };
+                resetForm.subCategory.value = "";
+                setFormData(resetForm);
+                onChangeSubCategory("");
+              }}
+            />
+          )}
+        </div>
+      </div>
     </>
   );
 };

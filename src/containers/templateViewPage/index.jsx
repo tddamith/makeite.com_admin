@@ -12,6 +12,8 @@ import { CheckValidity } from "../../utils/formValidity";
 import DropBox from "../../components/dropBox";
 import PaginationBar from "../../components/pagination";
 import TemplateCard from "../../components/templateCard";
+import { useDispatch } from "react-redux";
+import { openTemplateEditModal } from "../modal/TemplateEditModal/redux/actions";
 
 const TemplateViewPage = () => {
   const [tempList, setTempList] = useState("");
@@ -22,11 +24,14 @@ const TemplateViewPage = () => {
   const [count, setCount] = useState("");
 
   const [filteredList, setFilteredList] = useState([]);
+
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     templateId: {
       key: "templateId",
       label: "",
-      size: "sm",
+      size: "min-w-[150px]",
       isShowRequired: false,
       elementConfig: {
         type: "text",
@@ -43,7 +48,7 @@ const TemplateViewPage = () => {
     templateName: {
       key: "templateName",
       label: "",
-      size: "md",
+      size: "min-w-[150px]",
       isShowRequired: false,
       elementConfig: {
         type: "text",
@@ -60,7 +65,7 @@ const TemplateViewPage = () => {
     category: {
       key: "category",
       label: " ",
-      size: "lg",
+      size: "min-w-[150px]",
       placeholder: "Search by category",
       mainLayerStyles: " flex-column " + " align-content-center ",
       iconName: "",
@@ -80,7 +85,7 @@ const TemplateViewPage = () => {
     status: {
       key: "status",
       label: "",
-      size: "lg",
+      size: "min-w-[133px]",
       placeholder: "Search by status",
       mainLayerStyles: " flex-column  align-content-center w-full",
       iconName: "",
@@ -331,8 +336,8 @@ const TemplateViewPage = () => {
           ))
         : ""} */}
 
-      <div className="flex flex-row gap-3 items-center justify-between p-4 border-border-primary border-b-x_sm bg-white">
-        <div className="flex flex-row gap-4 ">
+      <div className="flex flex-row gap-52 items-center justify-between p-5 border-border-primary border-b-x_sm bg-white">
+        <div className="flex flex-row gap-4 w-full">
           <InputBox
             data={updateForm.templateId}
             onChange={async (e) => {
@@ -437,6 +442,9 @@ const TemplateViewPage = () => {
                       subCategory: template?.sub_category_name,
                     }}
                     onClick={() => console.log("Clicked:", template)}
+                    onClickEdit={() =>
+                      dispatch(openTemplateEditModal(template))
+                    }
                   />
                 )
               )}

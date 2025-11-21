@@ -1,6 +1,13 @@
-import { RiHome2Line, RiLayout5Line, RiPaletteLine } from "react-icons/ri";
+import {
+  RiHome2Line,
+  RiLayout5Line,
+  RiPaletteLine,
+  RiDeleteBinLine,
+} from "react-icons/ri";
 import { FiPlus, FiX } from "react-icons/fi";
 import { PiCirclesFour } from "react-icons/pi";
+import { TbFolderMinus } from "react-icons/tb";
+import { FaArrowLeftLong } from "react-icons/fa6";
 
 export const AddIcon = (iconName) => {
   switch (iconName) {
@@ -16,6 +23,12 @@ export const AddIcon = (iconName) => {
       return <RiPaletteLine />;
     case "cross":
       return <FiX />;
+    case "bin":
+      return <RiDeleteBinLine />;
+    case "folder":
+      return <TbFolderMinus />;
+    case "arrow-left":
+      return <FaArrowLeftLong />;
 
     default:
       return;

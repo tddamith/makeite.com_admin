@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "../button";
 import Tag from "../tag";
 
-const TemplateCard = ({ data, onClick }) => {
+const TemplateCard = ({ data, onClick, onClickEdit }) => {
   const [isLoading, setIsLoading] = useState(false);
   return (
     <div
@@ -39,6 +39,7 @@ const TemplateCard = ({ data, onClick }) => {
           <div className="flex ml-52">
             <Tag
               data={{
+                style: "px-[11px] py-[5px] bg-hover",
                 name: data?.tag,
               }}
             />
@@ -69,10 +70,10 @@ const TemplateCard = ({ data, onClick }) => {
             className={"text-black bg-transparent border-black border-[1px]"}
             isActive={"text-white bg-transparent border-black border-[1px] "}
             isLoading={isLoading}
-            // onClick={async (e) => {
-            //   e.preventDefault();
-
-            // }}
+            onClick={async (e) => {
+              e.preventDefault();
+              onClickEdit();
+            }}
           />
         </div>
       </div>

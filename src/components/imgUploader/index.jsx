@@ -1,16 +1,43 @@
 import { data } from "autoprefixer";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { withRouter } from "react-router-dom/cjs/react-router-dom";
 import { imageUpload } from "../../containers/createNewItem/createNewTemplate/service/template.service";
-import { Store } from "react-notifications-component";
 import { notification } from "antd";
+import ImageUploaderPreview from "../imageUploaderPreview";
 
-const ImgUploader = ({ data, onChange }) => {
+const ImgUploader = ({ data, onChange, onClickRemove }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const progressRef = useRef(null);
+
+  const startProgress = () => {
+    setUploadProgress(0);
+
+    progressRef.current = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 95) return prev; // stop early, last 5% only after upload success
+
+        const next = prev + Math.random() * 10 + 5; // smooth increments
+        return next > 95 ? 95 : Math.round(next);
+      });
+    }, 400);
+  };
+
+  const finishProgress = () => {
+    clearInterval(progressRef.current);
+    setUploadProgress(100);
+  };
+
+  const stopProgress = () => {
+    clearInterval(progressRef.current);
+    setUploadProgress(0);
+  };
 
   const onChangeImage = async (e) => {
     try {
       setIsLoading(true);
+      startProgress();
+
       console.log("Image Upload Event:", e);
       e.preventDefault();
       // Get files from either drag-and-drop or file input
@@ -19,6 +46,8 @@ const ImgUploader = ({ data, onChange }) => {
       // Check if files exist and have length
       if (!files || files.length === 0) {
         console.warn("No files selected.");
+        stopProgress();
+        setIsLoading(false);
         return;
       }
 
@@ -28,9 +57,10 @@ const ImgUploader = ({ data, onChange }) => {
       const MAX_FILE_SIZE = data.fileSize * 1024 * 1024;
       const MAX_WIDTH = data.width + 200;
       const MAX_HEIGHT = data.height + 200;
-
-      if (data.fileSize && selectedFile?.size > MAX_FILE_SIZE) {
-        alert("File size exceeds the 10MB limit.");
+      if (data.fileSize && selectedFile.size > MAX_FILE_SIZE) {
+        alert("File size exceeds limit.");
+        stopProgress();
+        setIsLoading(false);
         return;
       }
 
@@ -40,76 +70,78 @@ const ImgUploader = ({ data, onChange }) => {
         console.log("base64", reader.result);
         const img = new Image();
         img.onload = async () => {
-          console.log("Image width:", img.width, "height:", img.height);
+          try {
+            console.log("Image width:", img.width, "height:", img.height);
 
-          // if (
-          //   data.width &&
-          //   data.height &&
-          //   (img.width > MAX_WIDTH || img.height > MAX_HEIGHT)
-          // ) {
-          //   alert(
-          //     `Image resolution exceeds ${MAX_WIDTH - 200}x${
-          //       MAX_HEIGHT - 200
-          //     }px`
-          //   );
-          //   return;
-          // }
-          const response = await imageUpload({
-            name: selectedFile.name,
-            filename: selectedFile.name,
-            type: selectedFile.type,
-            size: selectedFile.size,
-            base64_data: reader.result,
-            file: selectedFile,
-            lastModified: selectedFile.lastModified,
-            lastModifiedDate: selectedFile.lastModifiedDate,
-          });
-          console.log("Image Upload Response:", response);
-          if (response?.data) {
-            onChange(response?.data);
-            Store.addNotification({
-              title: "Success",
-              message: "Image Upload successfully",
-              type: "success",
-              container: "top-right",
-              dismiss: {
-                duration: 2000,
-                onScreen: true,
-              },
+            // if (
+            //   data.width &&
+            //   data.height &&
+            //   (img.width > MAX_WIDTH || img.height > MAX_HEIGHT)
+            // ) {
+            //   alert(
+            //     `Image resolution exceeds ${MAX_WIDTH - 200}x${
+            //       MAX_HEIGHT - 200
+            //     }px`
+            //   );
+            //   return;
+            // }
+            const response = await imageUpload({
+              name: selectedFile.name,
+              filename: selectedFile.name,
+              type: selectedFile.type,
+              size: selectedFile.size,
+              base64_data: reader.result,
+              file: selectedFile,
+              lastModified: selectedFile.lastModified,
+              lastModifiedDate: selectedFile.lastModifiedDate,
             });
-            // notification.success({
-            //   message: "success",
-            //   description: "Image uploaded  successfully",
-            // });
-          } else {
-            Store.addNotification({
-              title: "Error",
-              message: "Image Upload failed",
-              type: "danger",
-              container: "top-right",
-              dismiss: {
-                duration: 2000,
-                onScreen: true,
-              },
-            });
-            notification.success({
-              message: "success",
-              description: "Image Upload failed",
+
+            console.log("Image Upload Response:", response);
+            finishProgress();
+
+            setTimeout(() => {
+              if (response?.data) {
+                onChange(response.data);
+                notification.success({
+                  message: "Success",
+                  description: "Image uploaded successfully",
+                  placement: "topRight",
+                });
+              } else {
+                notification.error({
+                  message: "Error",
+                  description: "Image upload failed",
+                  placement: "topRight",
+                });
+              }
+
+              setIsLoading(false);
+              stopProgress();
+            }, 600);
+          } catch (err) {
+            stopProgress();
+            setIsLoading(false);
+            notification.error({
+              message: "Error",
+              description: "Upload failed",
             });
           }
-          setIsLoading(false);
         };
 
         img.onerror = () => {
+          stopProgress();
+          setIsLoading(false);
           alert("Invalid image file.");
         };
 
         img.src = reader.result;
       };
-      reader.readAsDataURL(files[0]);
-    } catch (error) {
+
+      reader.readAsDataURL(selectedFile);
+    } catch (err) {
+      stopProgress();
       setIsLoading(false);
-      console.error("Error uploading image:", error);
+      console.error(err);
     }
   };
 
@@ -149,29 +181,18 @@ const ImgUploader = ({ data, onChange }) => {
         )}
 
         {isLoading && (
-          <div className="flex items-center justify-center">
-            <svg
-              className="size-5 animate-spin text-primary"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 30 30"
-            >
-              <circle
-                className="opacity-25"
-                cx="15"
-                cy="15"
-                r="13"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75 mt-[-55px]"
-                fill="currentColor"
-                d="M2 10a8 9 0 017-8v4a4 4 0 00-4 4H4z"
-              ></path>
-            </svg>
-            <span className="ml-2 text-sm text-gray-500">Loading...</span>
-          </div>
+          <ImageUploaderPreview
+            data={{
+              size: "w-auto  rounded-16px  object-cover",
+              isActive: !isLoading ? "bg-bg_4 text-font-hover" : "",
+              imgUrl: data?.imgUrl,
+              name: "Image Name",
+              fileSize: "400KB",
+              isLoading: isLoading,
+              progress: uploadProgress,
+            }}
+            onClickRemove={onClickRemove}
+          />
         )}
       </div>
     </>

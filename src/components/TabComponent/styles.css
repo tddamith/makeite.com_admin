@@ -1,0 +1,103 @@
+.tab-component-wrapper .ant-tabs {
+  width: 100%;
+  z-index: 50;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-nav {
+  min-height: 47px;
+  border-bottom: 1px solid;
+  border-color: #ffffff1a;
+  padding-left: 16px;
+  margin: 0;
+  background-color: transparent;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-nav:hover {
+  color: black;
+}
+
+.tab-component-wrapper .ant-tabs.ant-tabs-top > .ant-tabs-nav:before {
+  border-bottom: none;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
+  margin-left: 0;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab {
+  padding: 12px 24px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #89898a;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab:hover {
+  color: black;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab-btn {
+  color: #89898a;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab-btn:hover {
+  color: black;
+}
+
+.tab-component-wrapper .ant-tabs.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+}
+
+.tab-component-wrapper .ant-tabs.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  background: white;
+  height: 100%;
+}
+
+.tab-component-wrapper
+  .ant-tabs.ant-tabs-card.ant-tabs-top
+  > .ant-tabs-nav
+  .ant-tabs-tab
+  + .ant-tabs-tab {
+  margin-left: 0;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-tab-remove {
+  padding-left: 0;
+  border: inherit;
+  border-right: 1px solid #ededed !important;
+}
+
+.tab-component-wrapper
+  .ant-tabs.ant-tabs-top
+  > .ant-tabs-nav
+  .ant-tabs-nav-wrap::after {
+  border-right: none;
+  border-left: 1px solid #ededed !important;
+}
+
+.tab-component-wrapper
+  .ant-tabs.ant-tabs-card
+  > .ant-tabs-nav
+  .ant-tabs-ink-bar {
+  padding-left: -12px;
+  background: #be17fa;
+  visibility: inherit;
+}
+
+.tab-component-wrapper
+  .ant-tabs
+  .ant-tabs-tab.ant-tabs-tab-active
+  .ant-tabs-tab-btn {
+  color: black;
+}
+
+.tab-component-wrapper .ant-tabs .ant-tabs-ink-bar {
+  padding-left: -12px;
+  background: #be17fa;
+}
+
+.tab-component-wrapper .ant-tabs.ant-tabs-ink-bar {
+  padding-left: -12px !important;
+  background: #be17fa;
+}

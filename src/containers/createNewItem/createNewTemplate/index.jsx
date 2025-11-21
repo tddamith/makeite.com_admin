@@ -16,9 +16,8 @@ import {
 } from "./service/template.service";
 
 import ImgUploader from "../../../components/imgUploader";
-
-import { Store } from "react-notifications-component";
 import ImageComponent from "../../../components/imageComponent";
+import ImageUploaderPreview from "../../../components/imageUploaderPreview";
 
 const CreateNewTemplate = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -134,30 +133,20 @@ const CreateNewTemplate = () => {
 
       setImage("");
       if (res?.data) {
-        Store.addNotification({
-          title: "Success",
-          message: "Image Delete successfully",
-          type: "success",
-          container: "top-right",
-          dismiss: {
-            duration: 2000,
-            onScreen: true,
-          },
+        notification.success({
+          message: "Success",
+          description: "Image Delete successfully",
+          placement: "topRight",
         });
       }
 
       setIsLoading(false);
     } catch (error) {
       console.log("Error in deleting image", error);
-      Store.addNotification({
-        title: "Error",
-        message: "Image Delete failed",
-        type: "danger",
-        container: "top-right",
-        dismiss: {
-          duration: 2000,
-          onScreen: true,
-        },
+      notification.error({
+        message: "Error",
+        description: "Image Delete failed",
+        placement: "topRight",
       });
       setIsLoading(false);
     }
@@ -253,13 +242,10 @@ const CreateNewTemplate = () => {
             clearInterval(interval);
             setIsLoading(false);
 
-            Store.addNotification({
-              title: "Success!",
-              message: "Template Create Successfully!",
-              type: "success",
-              insert: "top",
-              container: "top-right",
-              dismiss: { duration: 3000, onScreen: true },
+            notification.success({
+              message: "Success",
+              description: "Template Create Successfully!",
+              placement: "topRight",
             });
 
             setIsLoading(false);
@@ -272,24 +258,19 @@ const CreateNewTemplate = () => {
         console.log("Success");
       } else {
         setIsLoading(false);
-        Store.addNotification({
-          title: "Error!",
-          message: "Template Create Failed!",
-          type: "danger",
-          insert: "top",
-          container: "top-right",
-          dismiss: { duration: 3000, onScreen: true },
+
+        notification.error({
+          message: "Error",
+          description: "Template Create Failed!",
+          placement: "topRight",
         });
       }
     } catch (error) {
       console.log("Error ===", error);
-      Store.addNotification({
-        title: "Error!",
-        message: "Template Create Failed!",
-        type: "danger",
-        insert: "top",
-        container: "top-right",
-        dismiss: { duration: 3000, onScreen: true },
+      notification.error({
+        message: "Error",
+        description: "Template Create Failed!",
+        placement: "topRight",
       });
       setIsLoading(false);
       setIsButtonDisabled(false);
@@ -327,8 +308,15 @@ const CreateNewTemplate = () => {
             </h2>
             <ImageComponent
               data={{
-                size: "w-[127px] h-[127px] rounded-16px mt-3 object-cover mx-auto",
-                imgUrl: require("../../../assets/img/zipIcon.png"),
+                size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
+                isActive: "bg-bg_4 text-font-hover",
+                name: template?.replace(
+                  "https://wellnesswisodom.s3.ap-southeast-1.amazonaws.com/",
+                  ""
+                ),
+                fileSize: "400KB",
+                isLoading: isLoading,
+                progress: progress,
               }}
               onClickRemove={() => {
                 setIsLoading(true);
@@ -359,10 +347,30 @@ const CreateNewTemplate = () => {
               <h2 className="text-md font-medium text-font-default font-manrope  mb-2px">
                 Template cover image
               </h2>
-              <ImageComponent
+              {/* <ImageComponent
                 data={{
                   size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
                   imgUrl: image?.url,
+                }}
+                onClickRemove={() => {
+                  setIsLoading(true);
+                  if (template?.template_id) {
+                    setImage("");
+                  } else {
+                    onClickRemoveImage(image?.data?.file_name, "image");
+                  }
+                  setIsLoading(false);
+                }}
+              /> */}
+              <ImageUploaderPreview
+                data={{
+                  size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
+                  isActive: !isLoading ? "bg-bg_4 text-font-hover" : "",
+                  imgUrl: image?.url,
+                  name: image?.file_name,
+                  fileSize: "400KB",
+                  isLoading: isLoading,
+                  progress: progress,
                 }}
                 onClickRemove={() => {
                   setIsLoading(true);
@@ -382,6 +390,9 @@ const CreateNewTemplate = () => {
                 label: "Template cover image",
                 accept: "image/png, image/jpeg, image/gif",
                 description: "PNG, JPG, GIF up to 10MB",
+                isLoading: isLoading,
+                imgUrl: image?.url,
+                progress: progress,
               }}
               onChange={onChangeImage}
             />
