@@ -29,7 +29,7 @@ const Content = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [viewPointWidth, setViewPointWidth] = useState(0);
   const [viewPointHeight, setViewPointHeight] = useState(0);
-  const { templateData } = useSelector(
+  const { templateData, isUpdate } = useSelector(
     ({ templateReducer }) => templateReducer
   );
   const dispatch = useDispatch();
@@ -116,7 +116,12 @@ const Content = () => {
         };
 
         setImage(image);
-        dispatch(setTemplateData({ ...templateData, cover_image: file }));
+        dispatch(
+          setTemplateData({
+            ...templateData,
+            cover_image: file,
+          })
+        );
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -194,8 +199,11 @@ const Content = () => {
       updateForm.subCategory.value = templateData?.sub_category_id;
       setFormData(updateForm);
       setIsPaid(templateData?.type === "paid" ? true : false);
-      setImage(templateData?.cover_image);
-      setTemplate(templateData?.file_url);
+
+      if (!isUpdate) {
+        setImage(templateData?.cover_image);
+        setTemplate(templateData?.file_url);
+      }
     } else {
       for (let key in updateForm) {
         console.log(updateForm[key]);
@@ -548,7 +556,6 @@ const Content = () => {
 
             {image && (
               <>
-                {console.log(image)}
                 <ImageUploaderPreview
                   data={{
                     size: "w-auto h-[127px] rounded-16px mt-3 object-cover",

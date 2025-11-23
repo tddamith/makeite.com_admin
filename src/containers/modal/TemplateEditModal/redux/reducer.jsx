@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isOpenTemplateEditModal: false,
   templateData: "",
+  isUpdate: false,
 };
 
 const TemplateReducer = createSlice({
@@ -27,6 +28,7 @@ const TemplateReducer = createSlice({
       return {
         ...state,
         templateData: payload,
+        isUpdate: true,
       };
     },
   },
