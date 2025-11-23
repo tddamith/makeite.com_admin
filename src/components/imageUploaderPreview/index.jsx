@@ -16,7 +16,7 @@ const ImageUploaderPreview = ({ data, onClickRemove }) => {
     // message.error("");
   };
   return (
-    <div className="flex flex-row w-full  justify-between items-center">
+    <div className="flex flex-row w-full  justify-between items-center p-4">
       <div className="flex flex-row gap-4">
         {data?.imgUrl && (
           <img
@@ -30,7 +30,7 @@ const ImageUploaderPreview = ({ data, onClickRemove }) => {
             {AddIcon("folder")}
           </div>
         )}
-        <div className="flex flex-col font-manrope justify-center">
+        <div className="flex flex-col font-manrope justify-center min-w-[187px]">
           <div className="font-normal text-md">{data?.name}</div>
           <div className="font-normal text-[10px] text-font-secondary mb-[-5px]">
             {data?.fileSize}

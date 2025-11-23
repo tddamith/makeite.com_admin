@@ -14,11 +14,14 @@ import Uploader from "../../../../components/uploader";
 import TemplateTypeSwitch from "../../../../components/switchButton";
 import ImageUploaderPreview from "../../../../components/imageUploaderPreview";
 import ImgUploader from "../../../../components/imgUploader";
-import { notification } from "antd";
+import { App as AntdApp } from "antd";
+import { Progress } from "antd";
 import Scrollbar from "react-scrollbars-custom";
-import { useSelector } from "react-redux";
+import { closeTemplateEditModal, setTemplateData } from "../redux/actions";
+import { useSelector, useDispatch } from "react-redux";
 
 const Content = () => {
+  const { notification } = AntdApp.useApp();
   const [isPaid, setIsPaid] = useState(false);
   const [image, setImage] = useState("");
   const [template, setTemplate] = useState("");
@@ -29,6 +32,7 @@ const Content = () => {
   const { templateData } = useSelector(
     ({ templateReducer }) => templateReducer
   );
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     templateName: {
       key: "templateName",
@@ -105,12 +109,14 @@ const Content = () => {
   const onChangeImage = (image) => {
     try {
       if (image) {
+        console.log("image", image);
         let file = {
-          url: image.file_url,
-          file_name: image.file_name,
+          url: image?.file_url,
+          file_name: image?.file_name,
         };
 
-        setImage(file);
+        setImage(image);
+        dispatch(setTemplateData({ ...templateData, cover_image: file }));
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -120,6 +126,7 @@ const Content = () => {
   const onChangeZip = (zip) => {
     try {
       if (zip) {
+        console.log({ zip });
         setTemplate(zip);
       }
     } catch (error) {
@@ -147,8 +154,9 @@ const Content = () => {
         // });
         notification.success({
           message: "success",
-          description: "IImage Delete successfully",
+          description: "Image Delete successfully",
           placement: "topRight",
+          duration: 4,
         });
       }
 
@@ -169,6 +177,7 @@ const Content = () => {
         message: "error",
         description: "Image Delete failed",
         placement: "topRight",
+        duration: 4,
       });
       setIsLoading(false);
     }
@@ -276,54 +285,105 @@ const Content = () => {
     setFormData(updateForm);
   };
 
+  const getShortName = (template) => {
+    const fullName =
+      template?.filename ||
+      template?.replace(
+        "https://wellnesswisodom.s3.ap-southeast-1.amazonaws.com/",
+        ""
+      );
+
+    if (!fullName) return "";
+
+    if (fullName.length <= 20) return fullName;
+
+    const extStart = fullName.lastIndexOf(".") - 5;
+
+    return `${fullName.substring(0, 5)}...${fullName.substring(extStart)}`;
+  };
+
+  const getShortImgName = (image) => {
+    const fullName = image?.filename || image?.file_name;
+
+    if (!fullName) return "";
+
+    if (fullName.length <= 20) return fullName;
+
+    const extStart = fullName.lastIndexOf(".") - 5;
+
+    return `${fullName.substring(0, 5)}...${fullName.substring(extStart)}`;
+  };
+
   const onClickPublish = async () => {
     setIsLoading(true);
 
     const updateForm = {
       ...formData,
     };
+    console.log({ template });
+    console.log({ image });
 
     try {
-      const response = await updateTemplateById(
-        {
-          template_name: updateForm.templateName.value,
-          category_id: updateForm.category.value,
-          sub_category_id: updateForm.subCategory.value,
-          base64_data: template?.base64_data,
-          filename: template?.filename,
-          cover_image: image,
-          type: isPaid ? "paid" : "free",
+      const body = {
+        template_name: updateForm.templateName.value,
+        category_id: updateForm.category.value,
+        sub_category_id: updateForm.subCategory.value,
+        base64_data: template?.base64_data,
+        filename: template?.filename,
+        cover_image: {
+          url: image.file_url,
+          file_name: image.file_name,
         },
+        type: isPaid ? "paid" : "free",
+      };
+
+      console.log("updatedata", body);
+
+      const response = await updateTemplateById(
+        body,
         templateData?.template_id
       );
       console.log("response", response);
 
       if (response?.data?.data) {
         const jobId = response?.data?.data?.job_id;
-        if (!jobId) return;
-        const interval = setInterval(async () => {
-          const progressResponse = await jobProgress(jobId);
-          console.log(progressResponse);
-          setProgress(0);
-          const percentage = progressResponse.data?.progress || 0;
+        if (!jobId) {
+          notification.success({
+            message: "Success",
+            description: "Template Update Successfully!",
+            placement: "topRight",
+            duration: 4,
+          });
 
-          setProgress(percentage);
+          setIsLoading(false);
 
-          if (percentage >= 100) {
-            clearInterval(interval);
-            setIsLoading(false);
+          clearAll();
+        } else {
+          const interval = setInterval(async () => {
+            const progressResponse = await jobProgress(jobId);
+            console.log(progressResponse);
+            setProgress(0);
+            const percentage = progressResponse.data?.progress || 0;
 
-            notification.success({
-              message: "Success",
-              description: "Template Update Successfully!",
-              placement: "topRight",
-            });
+            setProgress(percentage);
 
-            setIsLoading(false);
+            if (percentage >= 100) {
+              clearInterval(interval);
+              setIsLoading(false);
 
-            clearAll();
-          }
-        }, 1000);
+              notification.success({
+                message: "Success",
+                description: "Template Update Successfully!",
+                placement: "topRight",
+                duration: 4,
+              });
+
+              setIsLoading(false);
+
+              clearAll();
+            }
+          }, 1000);
+        }
 
         console.log("Success");
       } else {
@@ -333,6 +393,7 @@ const Content = () => {
           message: "Error",
           description: "Template Update Failed!",
           placement: "topRight",
+          duration: 4,
         });
       }
     } catch (error) {
@@ -341,6 +402,7 @@ const Content = () => {
         message: "Error",
         description: "Template Update Failed!",
         placement: "topRight",
+        duration: 4,
       });
       setIsLoading(false);
     }
@@ -454,11 +516,10 @@ const Content = () => {
                   data={{
                     size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
                     isActive: "bg-bg_4 text-font-hover",
-                    name: template?.replace(
-                      "https://wellnesswisodom.s3.ap-southeast-1.amazonaws.com/",
-                      ""
-                    ),
-                    fileSize: "400KB",
+                    name: getShortName(template),
+                    fileSize: template?.size
+                      ? (template?.size / 1000000).toFixed(2) + "MB"
+                      : "-",
                     isLoading: isLoading,
                     progress: progress,
                   }}
@@ -492,11 +553,12 @@ const Content = () => {
                   data={{
                     size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
                     isActive: !isLoading ? "bg-bg_4 text-font-hover" : "",
-                    imgUrl: image?.url,
-                    name: image?.file_name,
-                    fileSize: "400KB",
+                    imgUrl: image?.file_url || image?.url,
+                    name: getShortImgName(image),
+                    fileSize: image?.size
+                      ? (image?.size / 1000000).toFixed(2) + "MB"
+                      : "-",
                     isLoading: isLoading,
-                    progress: progress,
                   }}
                   onClickRemove={() => {
                     setIsLoading(true);
@@ -530,7 +592,7 @@ const Content = () => {
           isLoading={isLoading}
           onClick={async (e) => {
             e.preventDefault();
-            clearAll();
+            dispatch(closeTemplateEditModal());
           }}
         />
         <Button
@@ -552,6 +614,24 @@ const Content = () => {
           }}
         />
       </div>
+      {isLoading && progress > 0 && (
+        <div className="top-0 h-full w-full left-0 bottom-0 right-0 fixed bg-black/35 z-[1000] ">
+          <div
+            className="flex flex-col justify-center items-center ml-[-20px] top-[40%] left-[49.3%] fixed rounded-md bg-white p-11"
+            style={{ width: "405px", height: "auto" }}
+          >
+            <Progress
+              percent={progress}
+              showInfo={false}
+              strokeColor="#BE17FA"
+              trailColor="#e7a9fd"
+            />
+            <span className="mt-2 font-manrope font-semibold text-black">
+              {progress}%
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

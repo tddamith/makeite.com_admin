@@ -7,3 +7,7 @@ export const openTemplateEditModal = (payload) => (dispatch) => {
 export const closeTemplateEditModal = () => (dispatch) => {
   dispatch(TemplateReducer.actions.closeTemplateEditModal());
 };
+
+export const setTemplateData = (payload) => (dispatch) => {
+  dispatch(TemplateReducer.actions.setTemplateData(payload));
+};

@@ -71,7 +71,7 @@ const ImgUploader = ({ data, onChange, onClickRemove }) => {
         const img = new Image();
         img.onload = async () => {
           try {
-            console.log("Image width:", img.width, "height:", img.height);
+            console.log("image", selectedFile);
 
             // if (
             //   data.width &&
@@ -101,7 +101,11 @@ const ImgUploader = ({ data, onChange, onClickRemove }) => {
 
             setTimeout(() => {
               if (response?.data) {
-                onChange(response.data);
+                onChange({
+                  ...response?.data,
+                  filename: selectedFile?.name,
+                  size: selectedFile?.size,
+                });
                 notification.success({
                   message: "Success",
                   description: "Image uploaded successfully",

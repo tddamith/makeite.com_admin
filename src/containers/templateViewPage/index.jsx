@@ -14,8 +14,10 @@ import PaginationBar from "../../components/pagination";
 import TemplateCard from "../../components/templateCard";
 import { useDispatch } from "react-redux";
 import { openTemplateEditModal } from "../modal/TemplateEditModal/redux/actions";
+import { App as AntdApp } from "antd";
 
 const TemplateViewPage = () => {
+  const { notification } = AntdApp.useApp();
   const [tempList, setTempList] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [pageNo, setPageNo] = useState("");

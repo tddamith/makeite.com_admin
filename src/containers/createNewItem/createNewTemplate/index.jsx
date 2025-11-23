@@ -4,7 +4,8 @@ import CategorySelectBox from "../../../components/categorySelectBox";
 import SubCategorySelectBox from "../../../components/subCategorySelectBox";
 import Uploader from "../../../components/uploader";
 import TemplateTypeSwitch from "../../../components/switchButton";
-import { Menu, notification, Progress } from "antd";
+import { Progress } from "antd";
+import { App as AntdApp } from "antd";
 import MenuButtonCard from "../../../components/menuButton";
 import Button from "../../../components/button";
 import { CheckValidity } from "../../../utils/formValidity";
@@ -20,6 +21,7 @@ import ImageComponent from "../../../components/imageComponent";
 import ImageUploaderPreview from "../../../components/imageUploaderPreview";
 
 const CreateNewTemplate = () => {
+  const { notification } = AntdApp.useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isPaid, setIsPaid] = useState(false);
@@ -101,6 +103,7 @@ const CreateNewTemplate = () => {
   };
 
   const onChangeImage = (image) => {
+    console.log(image);
     try {
       if (image) {
         let file = {
@@ -108,7 +111,7 @@ const CreateNewTemplate = () => {
           file_name: image.file_name,
         };
 
-        setImage(file);
+        setImage(image);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -137,6 +140,7 @@ const CreateNewTemplate = () => {
           message: "Success",
           description: "Image Delete successfully",
           placement: "topRight",
+          duration: 4,
         });
       }
 
@@ -147,6 +151,7 @@ const CreateNewTemplate = () => {
         message: "Error",
         description: "Image Delete failed",
         placement: "topRight",
+        duration: 4,
       });
       setIsLoading(false);
     }
@@ -221,7 +226,10 @@ const CreateNewTemplate = () => {
         sub_category_id: updateForm.subCategory.value,
         base64_data: template?.base64_data,
         filename: template?.filename,
-        cover_image: image,
+        cover_image: {
+          url: image.file_url,
+          file_name: image.file_name,
+        },
         type: isPaid ? "paid" : "free",
       });
       console.log("response", response);
@@ -246,6 +254,7 @@ const CreateNewTemplate = () => {
               message: "Success",
               description: "Template Create Successfully!",
               placement: "topRight",
+              duration: 4,
             });
 
             setIsLoading(false);
@@ -263,6 +272,7 @@ const CreateNewTemplate = () => {
           message: "Error",
           description: "Template Create Failed!",
           placement: "topRight",
+          duration: 4,
         });
       }
     } catch (error) {
@@ -271,6 +281,7 @@ const CreateNewTemplate = () => {
         message: "Error",
         description: "Template Create Failed!",
         placement: "topRight",
+        duration: 4,
       });
       setIsLoading(false);
       setIsButtonDisabled(false);
@@ -310,11 +321,8 @@ const CreateNewTemplate = () => {
               data={{
                 size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
                 isActive: "bg-bg_4 text-font-hover",
-                name: template?.replace(
-                  "https://wellnesswisodom.s3.ap-southeast-1.amazonaws.com/",
-                  ""
-                ),
-                fileSize: "400KB",
+                name: template?.filename,
+                fileSize: (template?.size / 1000000).toFixed(2) + "MB",
                 isLoading: isLoading,
                 progress: progress,
               }}
@@ -366,11 +374,18 @@ const CreateNewTemplate = () => {
                 data={{
                   size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
                   isActive: !isLoading ? "bg-bg_4 text-font-hover" : "",
-                  imgUrl: image?.url,
-                  name: image?.file_name,
-                  fileSize: "400KB",
+                  imgUrl: image?.file_url,
+                  name:
+                    image?.filename?.length > 20
+                      ? `${image?.filename.substring(
+                          0,
+                          5
+                        )}...${image?.filename.substring(
+                          image?.filename.lastIndexOf(".") - 5
+                        )}`
+                      : image?.filename,
+                  fileSize: (image?.size / 1000000).toFixed(2) + "MB",
                   isLoading: isLoading,
-                  progress: progress,
                 }}
                 onClickRemove={() => {
                   setIsLoading(true);

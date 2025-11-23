@@ -23,6 +23,12 @@ const TemplateReducer = createSlice({
         isOpenTemplateEditModal: false,
       };
     },
+    setTemplateData: (state, { payload }) => {
+      return {
+        ...state,
+        templateData: payload,
+      };
+    },
   },
 });
 export default TemplateReducer;
