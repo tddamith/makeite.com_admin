@@ -22,6 +22,7 @@ const TemplateReducer = createSlice({
         ...state,
         templateData: "",
         isOpenTemplateEditModal: false,
+        isUpdate: false,
       };
     },
     setTemplateData: (state, { payload }) => {
