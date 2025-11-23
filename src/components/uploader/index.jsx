@@ -94,11 +94,6 @@ const Uploader = ({ data, onChange, onClickRemove }) => {
               filename: selectedFile?.name,
               size: selectedFile?.size,
             });
-          console.log({
-            base64_data: reader?.result,
-            filename: selectedFile?.name,
-          });
-          console.log({ reader });
 
           setIsLoading(false);
         } catch (error) {

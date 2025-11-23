@@ -109,7 +109,6 @@ const Content = () => {
   const onChangeImage = (image) => {
     try {
       if (image) {
-        console.log("image", image);
         let file = {
           url: image?.file_url,
           file_name: image?.file_name,
@@ -131,7 +130,6 @@ const Content = () => {
   const onChangeZip = (zip) => {
     try {
       if (zip) {
-        console.log({ zip });
         setTemplate(zip);
       }
     } catch (error) {
@@ -190,7 +188,6 @@ const Content = () => {
 
   useEffect(() => {
     if (templateData?.template_id) {
-      console.log("id", templateData?.template_id);
       const updateForm = {
         ...formData,
       };
@@ -328,24 +325,21 @@ const Content = () => {
     const updateForm = {
       ...formData,
     };
-    console.log({ template });
-    console.log({ image });
 
     try {
       const body = {
         template_name: updateForm.templateName.value,
         category_id: updateForm.category.value,
         sub_category_id: updateForm.subCategory.value,
-        base64_data: template?.base64_data,
-        filename: template?.filename,
-        cover_image: {
-          url: image.file_url,
-          file_name: image.file_name,
-        },
+        base64_data: template?.base64_data || "",
+        filename: template?.filename || "",
+        cover_image:
+          {
+            url: image.file_url,
+            file_name: image.file_name,
+          } || templateData?.cover_image,
         type: isPaid ? "paid" : "free",
       };
-
-      console.log("updatedata", body);
 
       const response = await updateTemplateById(
         body,
@@ -366,6 +360,7 @@ const Content = () => {
           setIsLoading(false);
 
           clearAll();
+          dispatch(closeTemplateEditModal());
         } else {
           const interval = setInterval(async () => {
             const progressResponse = await jobProgress(jobId);
@@ -389,11 +384,10 @@ const Content = () => {
               setIsLoading(false);
 
               clearAll();
+              dispatch(closeTemplateEditModal());
             }
           }, 1000);
         }
-
-        console.log("Success");
       } else {
         setIsLoading(false);
 

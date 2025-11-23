@@ -71,8 +71,6 @@ const ImgUploader = ({ data, onChange, onClickRemove }) => {
         const img = new Image();
         img.onload = async () => {
           try {
-            console.log("image", selectedFile);
-
             // if (
             //   data.width &&
             //   data.height &&
