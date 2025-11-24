@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import InputBox from "../../components/inputBox";
 import Button from "../../components/button";
 import { CheckValidity } from "../../utils/formValidity";
-import bgLine1 from "../../assets/img/Vector2.png";
-import bgLine2 from "../../assets/img/Vector3.png";
+import bg from "../../assets/img/bg1.png";
+
 import VersionLabel from "../../components/versionLabel";
 
 const SignIn = () => {
@@ -89,17 +89,17 @@ const SignIn = () => {
   const updateForm = { ...formData };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-bg_3 my-0 mx-auto">
+    <div className="flex flex-col w-full h-screen  my-0 mx-auto">
       <img
-        src={bgLine2}
+        src={bg}
         alt="background image"
-        className="w-full h-full object-cover absolute top-[-150px] "
+        className="w-full h-full object-cover fixed top-0 left-0  z-10 "
       />
-      <img
+      {/* <img
         src={bgLine1}
         alt="background image"
         className="w-full h-auto object-cover absolute top-[150px] "
-      />
+      /> */}
 
       <div className="flex flex-col z-30 my-8 mx-auto bg-white w-[425px] h-auto  rounded-md border-x_sm border-border-deafult font-manrope justify-center p-10 ">
         <img
