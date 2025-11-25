@@ -12,8 +12,11 @@ import { CheckValidity } from "../../utils/formValidity";
 import DropBox from "../../components/dropBox";
 import PaginationBar from "../../components/pagination";
 import TemplateCard from "../../components/templateCard";
-import { useDispatch } from "react-redux";
-import { openTemplateEditModal } from "../modal/TemplateEditModal/redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  doneRefresh,
+  openTemplateEditModal,
+} from "../modal/TemplateEditModal/redux/actions";
 import { App as AntdApp } from "antd";
 
 const TemplateViewPage = () => {
@@ -26,6 +29,7 @@ const TemplateViewPage = () => {
   const [count, setCount] = useState("");
 
   const [filteredList, setFilteredList] = useState([]);
+  const { isRefresh } = useSelector(({ templateReducer }) => templateReducer);
 
   const dispatch = useDispatch();
 
@@ -179,7 +183,7 @@ const TemplateViewPage = () => {
   // }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStatus = async () => {
       try {
         const getTemplateStatusDetails = await getAllTemplatesStatus();
         console.log("Get All Templates Status", getTemplateStatusDetails);
@@ -205,6 +209,7 @@ const TemplateViewPage = () => {
         console.log("Error fetching Template", error);
       }
     };
+    fetchStatus();
     fetchData();
   }, []);
 
@@ -231,6 +236,7 @@ const TemplateViewPage = () => {
         setPageCount(response?.data?.count);
         setPageNo(1);
         setCount(response?.data?.total_count);
+        dispatch(doneRefresh());
       } else {
         setTempList([]);
         console.log("Data Not Found");
@@ -241,8 +247,10 @@ const TemplateViewPage = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isRefresh) {
+      fetchData();
+    }
+  }, [isRefresh]);
 
   const onChangePage = async (pageNumber, size) => {
     console.log("onChangePage", pageNumber, size);

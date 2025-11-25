@@ -11,3 +11,7 @@ export const closeTemplateEditModal = () => (dispatch) => {
 export const setTemplateData = (payload) => (dispatch) => {
   dispatch(TemplateReducer.actions.setTemplateData(payload));
 };
+
+export const doneRefresh = () => (dispatch) => {
+  dispatch(TemplateReducer.actions.doneRefresh());
+};
