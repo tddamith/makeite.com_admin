@@ -1,7 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const InputBox = ({ onChange, data }) => {
+  const [passwordShown, setPasswordShown] = useState(false);
+  const [passwordLength, setPasswordLength] = useState(false);
+  const [hasNumber, setHasNumber] = useState(false);
+  const [upperCase, setUpperCase] = useState(false);
+  const [lowerCase, setLowerCase] = useState(false);
+  const password = data.value;
   const [cursor, setCursor] = useState();
+
+  useEffect(() => {
+    const numbers = /[0-9]/g;
+    const upperCase = /[A-Z]/g;
+    const lowerCase = /[a-z]/g;
+    setPasswordLength(String(password).length >= 8 ? true : false);
+    setHasNumber(numbers.test(password) ? true : false);
+    setUpperCase(upperCase.test(password) ? true : false);
+    setLowerCase(lowerCase.test(password) ? true : false);
+  }, [password]);
 
   const handleChange = (e) => {
     setCursor(e.target.selectionStart);
@@ -24,6 +40,9 @@ const InputBox = ({ onChange, data }) => {
           disabled={data?.disabled}
           value={data?.value}
           {...data?.elementConfig}
+          {...(data.isPassword && {
+            ...(data.elementConfig.type = passwordShown ? "text" : "password"),
+          })}
           onChange={onChange && handleChange}
         />
       </form>

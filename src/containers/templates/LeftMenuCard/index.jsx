@@ -47,7 +47,7 @@ const Index = (props) => {
         </div>
         <div className=" flex flex-row justify-between">
           <VersionLabel />
-          <LogOutButton />
+          <LogOutButton onClick={""} />
         </div>
       </div>
     </>

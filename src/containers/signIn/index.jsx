@@ -3,10 +3,13 @@ import InputBox from "../../components/inputBox";
 import Button from "../../components/button";
 import { CheckValidity } from "../../utils/formValidity";
 import bg from "../../assets/img/bg1.png";
-
+import { App as AntdApp } from "antd";
 import VersionLabel from "../../components/versionLabel";
+import { authentication } from "./service/auth.service";
+import { login, userDetails } from "../../utils/auth";
 
-const SignIn = () => {
+const SignIn = (props) => {
+  const { notification } = AntdApp.useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     userName: {
@@ -86,6 +89,42 @@ const SignIn = () => {
 
     setFormData(updateForm);
   };
+
+  const onClickSave = async (e) => {
+    setIsLoading(true);
+    const updateForm = {
+      ...formData,
+    };
+    let result = await authentication({
+      username: updateForm.userName.value,
+      password: updateForm.password.value,
+    });
+    console.log("result", result);
+    if (result.data?.status) {
+      login(result?.data?.token);
+      console.log("login Token", result.data.token);
+      const user = userDetails();
+      console.log("user", user);
+
+      notification.success({
+        message: "Success",
+        description: "Successfully Login!",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+      props.history.push("/");
+    } else {
+      notification.error({
+        message: "Error",
+        description: "Login Failed!",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+    }
+  };
+
   const updateForm = { ...formData };
 
   return (
@@ -125,23 +164,23 @@ const SignIn = () => {
           <Button
             content="Sign In"
             className={
-              updateForm.userName.value === "" ||
-              updateForm.password.value === ""
+              updateForm.userName.value !== "" ||
+              updateForm.password.value !== ""
                 ? "text-white bg-black"
                 : "bg-border-default text-disable"
             }
             isActive={
-              updateForm.userName.value === "" ||
-              updateForm.password.value === ""
+              updateForm.userName.value !== "" ||
+              updateForm.password.value !== ""
                 ? "text-white bg-black"
                 : "bg-border-default text-disable"
             }
             isLoading={isLoading}
-            //   onClick={async (e) => {
-            //     setIsLoading(true);
-            //     e.preventDefault();
-            //     await onClickSave(e);
-            //   }}
+            onClick={async (e) => {
+              setIsLoading(true);
+              e.preventDefault();
+              await onClickSave(e);
+            }}
           />
         </div>
       </div>
