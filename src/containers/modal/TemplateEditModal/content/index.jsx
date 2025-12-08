@@ -335,8 +335,8 @@ const Content = () => {
         filename: template?.filename || "",
         cover_image:
           {
-            url: image.file_url,
-            file_name: image.file_name,
+            url: image.file_url || image.url,
+            file_name: image.file_name || image.filename,
           } || templateData?.cover_image,
         type: isPaid ? "paid" : "free",
       };

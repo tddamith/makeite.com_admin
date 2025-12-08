@@ -3,6 +3,7 @@ const initialState = {
   isOpenTemplateEditModal: false,
   templateData: "",
   isUpdate: false,
+  isRefresh: false,
 };
 
 const TemplateReducer = createSlice({
@@ -23,6 +24,7 @@ const TemplateReducer = createSlice({
         templateData: "",
         isOpenTemplateEditModal: false,
         isUpdate: false,
+        isRefresh: true,
       };
     },
     setTemplateData: (state, { payload }) => {
@@ -30,6 +32,12 @@ const TemplateReducer = createSlice({
         ...state,
         templateData: payload,
         isUpdate: true,
+      };
+    },
+    doneRefresh: (state) => {
+      return {
+        ...state,
+        isRefresh: false,
       };
     },
   },

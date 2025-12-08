@@ -1,10 +1,10 @@
 import React from "react";
 
-const LogOutButton = (data) => {
+const LogOutButton = ({ onClick }) => {
   return (
     <div
       className="font-manrope font-bold text-md text-primary underline cursor-pointer "
-      onClick={data?.onClick}
+      onClick={onClick}
     >
       Log Out
     </div>

@@ -7,6 +7,7 @@ import Logo from "../../../components/logo";
 import VersionLabel from "../../../components/versionLabel";
 import { withRouter } from "react-router-dom/cjs/react-router-dom";
 import LogOutButton from "../../../components/logOutButton";
+import { userLogOut } from "../../../utils/auth";
 
 const Index = (props) => {
   const [menuName, setMenuName] = useState("");
@@ -47,7 +48,14 @@ const Index = (props) => {
         </div>
         <div className=" flex flex-row justify-between">
           <VersionLabel />
-          <LogOutButton />
+          <LogOutButton
+            onClick={async () => {
+              const res = await userLogOut();
+              if (res) {
+                props.history.push("/sign-in");
+              }
+            }}
+          />
         </div>
       </div>
     </>

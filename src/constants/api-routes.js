@@ -4,6 +4,9 @@
  */
 
 const ApiRoutes = {
+  //Sign-In
+  SIGN_IN: "/auth/sign-in",
+
   //CATEGORY
   CREATE_CATEGORY: "/create/new/category",
   GET_ALL_CATEGORY: "/get/all/categories",

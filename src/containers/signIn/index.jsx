@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import InputBox from "../../components/inputBox";
 import Button from "../../components/button";
 import { CheckValidity } from "../../utils/formValidity";
-import bgLine1 from "../../assets/img/Vector2.png";
-import bgLine2 from "../../assets/img/Vector3.png";
+import bg from "../../assets/img/bg1.png";
+import { App as AntdApp } from "antd";
 import VersionLabel from "../../components/versionLabel";
+import { authentication } from "./service/auth.service";
+import { login, userDetails } from "../../utils/auth";
 
-const SignIn = () => {
+const SignIn = (props) => {
+  const { notification } = AntdApp.useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     userName: {
@@ -86,20 +89,56 @@ const SignIn = () => {
 
     setFormData(updateForm);
   };
+
+  const onClickSave = async (e) => {
+    setIsLoading(true);
+    const updateForm = {
+      ...formData,
+    };
+    let result = await authentication({
+      username: updateForm.userName.value,
+      password: updateForm.password.value,
+    });
+    console.log("result", result);
+    if (result.data?.status) {
+      login(result?.data?.token);
+      console.log("login Token", result.data.token);
+      const user = userDetails();
+      console.log("user", user);
+
+      notification.success({
+        message: "Success",
+        description: "Successfully Login!",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+      props.history.push("/");
+    } else {
+      notification.error({
+        message: "Error",
+        description: "Login Failed!",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+    }
+  };
+
   const updateForm = { ...formData };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-bg_3 my-0 mx-auto">
+    <div className="flex flex-col w-full h-screen  my-0 mx-auto">
       <img
-        src={bgLine2}
+        src={bg}
         alt="background image"
-        className="w-full h-full object-cover absolute top-[-150px] "
+        className="w-full h-full object-cover fixed top-0 left-0  z-10 "
       />
-      <img
+      {/* <img
         src={bgLine1}
         alt="background image"
         className="w-full h-auto object-cover absolute top-[150px] "
-      />
+      /> */}
 
       <div className="flex flex-col z-30 my-8 mx-auto bg-white w-[425px] h-auto  rounded-md border-x_sm border-border-deafult font-manrope justify-center p-10 ">
         <img
@@ -125,23 +164,23 @@ const SignIn = () => {
           <Button
             content="Sign In"
             className={
-              updateForm.userName.value === "" ||
-              updateForm.password.value === ""
+              updateForm.userName.value !== "" ||
+              updateForm.password.value !== ""
                 ? "text-white bg-black"
                 : "bg-border-default text-disable"
             }
             isActive={
-              updateForm.userName.value === "" ||
-              updateForm.password.value === ""
+              updateForm.userName.value !== "" ||
+              updateForm.password.value !== ""
                 ? "text-white bg-black"
                 : "bg-border-default text-disable"
             }
             isLoading={isLoading}
-            //   onClick={async (e) => {
-            //     setIsLoading(true);
-            //     e.preventDefault();
-            //     await onClickSave(e);
-            //   }}
+            onClick={async (e) => {
+              setIsLoading(true);
+              e.preventDefault();
+              await onClickSave(e);
+            }}
           />
         </div>
       </div>

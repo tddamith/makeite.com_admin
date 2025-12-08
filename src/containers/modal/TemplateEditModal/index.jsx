@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import ArrowButton from "../../../components/arrowButton";
 import Content from "./content";
+import HTMLPage from "./htmlPage";
+import Manifest from "./manifestPage";
+import Editor from "../../../containers/editor/Editor_2";
 import { Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,13 +23,13 @@ const TemplateEdit = () => {
       id: 1,
       key: 1,
       label: "Index.html",
-      // children: <AllOrders />,
+      children: <HTMLPage />,
     },
     {
       id: 2,
       key: 2,
       label: "manifest.json",
-      // children: <ShippingOrders />,
+      children: <Manifest />,
     },
     {
       id: 3,
@@ -83,8 +86,8 @@ const TemplateEdit = () => {
             <TabComponent items={tabJson} onChange={onChangeTab} />
           </>
         </div>
-        <div className="flex w-full h-full justify-center columns-12  ">
-          {activeTab === 3 && (
+        {activeTab === 3 && (
+          <div className="flex w-full h-full justify-center columns-12  ">
             <img
               src={
                 templateData ? (
@@ -100,8 +103,8 @@ const TemplateEdit = () => {
               }
               alt="Template preview"
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );
