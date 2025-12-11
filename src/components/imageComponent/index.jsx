@@ -88,8 +88,8 @@ const ImageComponent = ({ data, onClickRemove }) => {
 
         <Popconfirm
           placement="topLeft"
-          title="Delete the image"
-          description="Are you sure to delete this Image?"
+          title="Delete the Zip File"
+          description="Are you sure to delete this Zip File?"
           onConfirm={onClickRemove}
           onCancel={onClickCancel}
           okText="Yes"

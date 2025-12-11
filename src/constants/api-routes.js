@@ -6,6 +6,7 @@
 const ApiRoutes = {
   //Sign-In
   SIGN_IN: "/auth/sign-in",
+  TOKEN_VALIDATE: "/auth/validate-token",
 
   //CATEGORY
   CREATE_CATEGORY: "/create/new/category",
@@ -22,6 +23,9 @@ const ApiRoutes = {
   GET_ALL_TEMPLATES: "/get/all/templates",
   GET_TEMPLATE_BY_PAGE: "/get/template",
   GET_TEMPLATE_STATUS: "/get/all/template/status",
+
+  //ZIP EXTRACT
+  ZIP_EXTRACT: "/template/unzip",
 
   //MEDIA UPLOAD
   IMAGE_UPLOAD: "/upload/image",

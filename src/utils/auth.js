@@ -1,10 +1,10 @@
 import React from "react";
 import { decodeToken } from "react-jwt";
 
-export const TOKEN_KEY = "iszkQAdmin@hopenewera9SQdT";
-export const TOKEN_KEY_ADS = "iszkQAds@hopenewera9SQdT";
-const TOKEN_KEY_USER = "isckUser@hopenewera34r";
-const INSIGHT_KEY = "hopeofaneweraInsight@keyNew891";
+export const TOKEN_KEY = "iszkQAdmin@makeite.com";
+export const TOKEN_KEY_REFRESH = "iszkQRefresh@makeite.com";
+const TOKEN_KEY_USER = "isckUser@makeite.com34r";
+const INSIGHT_KEY = "makeite.comInsight@keyNew891";
 
 export const userDetails = () => {
   // console.info("get  store details....");
@@ -36,11 +36,12 @@ export const newsUserDetails = () => {
   }
 };
 
-export const login = (token) => {
+export const login = (token, refresh_token) => {
   return new Promise((resolve, reject) => {
     try {
       // Store the token in localStorage
       localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(TOKEN_KEY_REFRESH, refresh_token);
 
       // Resolve the promise successfully
       resolve();
@@ -52,7 +53,7 @@ export const login = (token) => {
 };
 
 export const setAdsSession = (token) => {
-  localStorage.setItem(TOKEN_KEY_ADS, token);
+  localStorage.setItem(TOKEN_KEY_REFRESH, token);
 };
 
 export const setUserSession = (token) => {
@@ -64,9 +65,9 @@ export const getToken = () => {
   return localStorage.getItem(TOKEN_KEY);
 };
 
-export const getTokenAds = () => {
+export const getTokenRefresh = () => {
   // console.log('get token....');
-  return localStorage.getItem(TOKEN_KEY_ADS);
+  return localStorage.getItem(TOKEN_KEY_REFRESH);
 };
 
 export const getTokenUser = () => {
@@ -77,6 +78,7 @@ export const getTokenUser = () => {
 export const userLogOut = () => {
   console.log("remove token....");
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_KEY_REFRESH);
   return true;
 };
 
@@ -102,7 +104,7 @@ export const isLogin = () => {
 };
 
 export const isLoginAds = () => {
-  let token = localStorage.getItem(TOKEN_KEY_ADS);
+  let token = localStorage.getItem(TOKEN_KEY_REFRESH);
   console.warn("token::", token);
   if (!token) {
     console.error("User cannot access main console: token not found");
