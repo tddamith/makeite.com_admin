@@ -26,7 +26,7 @@ const TemplateViewPage = () => {
   const [tempList, setTempList] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [pageNo, setPageNo] = useState("");
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [pageCount, setPageCount] = useState(20);
   const [count, setCount] = useState("");
 
@@ -128,7 +128,7 @@ const TemplateViewPage = () => {
     let validityRes = await CheckValidity(
       inputIdentity,
       updateForm[inputIdentity].value,
-      updateForm[inputIdentity].validation
+      updateForm[inputIdentity].validation,
     );
 
     if (validityRes) {
@@ -378,6 +378,7 @@ const TemplateViewPage = () => {
       localStorage.setItem("oe_css", data.css || "");
       localStorage.setItem("oe_js", data.js || "");
       localStorage.setItem("oe_theme", data.theme || "");
+      localStorage.setItem("oe_manifest", data.manifest || "");
 
       dispatch(openTemplateEditModal(template));
       setIsLoading(false);
@@ -520,6 +521,7 @@ const TemplateViewPage = () => {
                       subCategory: template?.sub_category_name,
                     }}
                     isLoading={isLoading}
+                    onClickDelete={""}
                     onClickEdit={() => {
                       onClickEdit(template);
                     }}
@@ -527,7 +529,7 @@ const TemplateViewPage = () => {
                       dispatch(openTemplateEditModal(template));
                     }}
                   />
-                )
+                ),
               )}
             </div>
           </div>

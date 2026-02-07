@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "templateId": "chick-birthday-v1",
+    "version": 1
+  },
+
+  "theme": {
+    "vars": {
+      "bg": "#1e1e1e",
+      "card": "#fff9e6",
+      "ink": "#333333",
+      "muted": "#666666",
+      "primary": "#4aba3f",
+      "radius": "10px"
+    },
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+    ]
+  },
+
+  "page": {
+    "title": "Rehaya’s 1st Birthday Invitation"
+  },
+
+  "hero": {
+    "title": "ONEderful News!",
+    "subtitle": "Our little chick, Rehaya is turning one!",
+    "background": null
+  },
+
+  "event": {
+    "date": "October 5",
+    "time": "4.00 PM – 5.30 PM",
+    "venue": "Rehaya’s Chick Inn (Home)"
+  },
+
+  "details": {
+    "heading": "Celebration Details",
+    "body": "Join us for a joyful celebration as we mark this special first birthday filled with smiles, giggles, and sweet memories."
+  },
+
+  "cta": {
+    "label": "Join the Celebration",
+    "href": "#"
+  },
+
+  "footer": {
+    "note": "Your presence will make the day egg-stra special 🐣"
+  },
+
+  "backgrounds": [
+    {
+      "selector": "body",
+      "image": null,
+      "size": "cover",
+      "position": "center"
+    }
+  ],
+
+  "styles": {
+    "hero_title": {
+      "fontFamily": "Poppins",
+      "fontSize": "32px",
+      "fontWeight": "700",
+      "color": "#4aba3f"
+    },
+    "hero_subtitle": {
+      "fontSize": "20px",
+      "fontWeight": "400",
+      "color": "#c39a41"
+    },
+    "body_text": {
+      "fontSize": "14px",
+      "lineHeight": "1.6",
+      "color": "#333333"
+    },
+    "event_date": {
+      "fontSize": "58px",
+      "fontWeight": "700"
+    }
+  },
+
+  "card": {
+    "size": {
+      "width": 480,
+      "height": 720
+    },
+    "dpi": 300,
+    "safePadding": 30,
+    "bleed": 0,
+    "backgroundColor": "#fff9e6",
+    "transparentBackground": false,
+    "export": {
+      "scale": 2,
+      "filename": "rehaya-1st-birthday-invitation.png"
+    },
+    "preview": {
+      "fit": true,
+      "zoom": 1
+    }
+  },
+
+  "intro": {
+    "enabled": true,
+    "useOnce": true,
+    "timing": {
+      "fade": 400,
+      "holdAfter": 300
+    }
+  }
+}

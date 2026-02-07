@@ -4,7 +4,13 @@ import Tag from "../tag";
 import { Popconfirm } from "antd";
 import Spinner from "../spinner";
 
-const TemplateCard = ({ data, onClickEdit, onClickCancel, isLoading }) => {
+const TemplateCard = ({
+  data,
+  onClickEdit,
+  onClickCancel,
+  onClickDelete,
+  isLoading,
+}) => {
   const [showOverlay, setShowOverlay] = useState(false);
 
   // const onClickCancel = (e) => {
@@ -64,10 +70,7 @@ const TemplateCard = ({ data, onClickEdit, onClickCancel, isLoading }) => {
                 className={"text-white bg-black "}
                 isActive={"text-white bg-black"}
                 isLoading={isLoading}
-                // onClick={async (e) => {
-                //   e.preventDefault();
-
-                // }}
+                onClick={onClickDelete}
               />
 
               {/* <Popconfirm
