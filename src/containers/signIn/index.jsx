@@ -101,7 +101,7 @@ const SignIn = (props) => {
     });
     console.log("result", result);
     if (result.data?.status) {
-      login(result?.data?.token);
+      login(result?.data?.token, result?.data?.refresh_token);
       console.log("login Token", result.data.token);
       const user = userDetails();
       console.log("user", user);

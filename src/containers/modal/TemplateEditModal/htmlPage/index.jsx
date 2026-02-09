@@ -547,3 +547,9 @@ const defaultHtml = `\n<!doctype html>
 const defaultCss = `\n:root { color-scheme: light dark; }\nbody { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }\nh1 { font-size: 2rem; margin: 0 0 .5rem; }\nbutton { padding: .5rem 1rem; border-radius: .75rem; border: 1px solid #ddd; }\n`;
 
 const defaultJs = `\nconst btn = document.getElementById('btn');\nif (btn) btn.addEventListener('click', () => alert('JS is running! If you didn\'t see this, enable \'Allow scripts\' above.'));\n`;
+
+// const defaultHtml = `\n<h1>Hello, world! 👋</h1>\n<p>Edit the HTML, CSS, and JS tabs — your changes will appear on the right.</p>\n<button id="btn">Click me</button>\n`;
+
+// const defaultCss = `\n:root { color-scheme: light dark; }\nbody { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }\nh1 { font-size: 2rem; margin: 0 0 .5rem; }\nbutton { padding: .5rem 1rem; border-radius: .75rem; border: 1px solid #ddd; }\n`;
+
+// const defaultJs = `\nconst btn = document.getElementById('btn');\nif (btn) btn.addEventListener('click', () => alert('JS is running! If you didn\'t see this, enable \'Allow scripts\' above.'));\n`;

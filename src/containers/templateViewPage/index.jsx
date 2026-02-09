@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+
 import TemplateViewCard from "../../components/templateViewCard";
 import {
   getAllTemplates,
   getAllTemplatesStatus,
   getTemplateByPage,
+  unzipTemplate,
 } from "../createNewItem/createNewTemplate/service/template.service";
 import InputBox from "../../components/inputBox";
 import CategorySelectBox from "../../components/categorySelectBox";
@@ -24,7 +26,7 @@ const TemplateViewPage = () => {
   const [tempList, setTempList] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [pageNo, setPageNo] = useState("");
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [pageCount, setPageCount] = useState(20);
   const [count, setCount] = useState("");
 
@@ -126,7 +128,7 @@ const TemplateViewPage = () => {
     let validityRes = await CheckValidity(
       inputIdentity,
       updateForm[inputIdentity].value,
-      updateForm[inputIdentity].validation
+      updateForm[inputIdentity].validation,
     );
 
     if (validityRes) {
@@ -319,6 +321,73 @@ const TemplateViewPage = () => {
     console.log("Filtered Templates:", filtered);
   };
 
+  // const onClickEdit = async (template) => {
+  //   console.log("Edit template clicked:", template);
+  //   // Clear previous data
+  //   localStorage.removeItem("oe_html");
+  //   localStorage.removeItem("oe_css");
+  //   localStorage.removeItem("oe_js");
+  //   localStorage.removeItem("oe_theme");
+
+  //   const zipUrl = template?.file_url; // S3 link
+
+  //   try {
+  //     const files = await unzipTemplate(zipUrl);
+
+  //     console.log("Extracted files:", files);
+
+  //     // Example: match files inside ZIP
+  //     for (const fileName in files) {
+  //       const content = files[fileName];
+
+  //       if (fileName.endsWith(".html")) {
+  //         localStorage.setItem("oe_html", content);
+  //       }
+  //       if (fileName.endsWith(".css")) {
+  //         localStorage.setItem("oe_css", content);
+  //       }
+  //       if (fileName.endsWith(".js")) {
+  //         localStorage.setItem("oe_js", content);
+  //       }
+  //       if (fileName.includes("theme") && fileName.endsWith(".json")) {
+  //         localStorage.setItem("oe_theme", content);
+  //       }
+  //     }
+
+  //     // Finally open the editor modal
+  //     dispatch(openTemplateEditModal(template));
+  //   } catch (err) {
+  //     console.error("ZIP extract error:", err);
+  //   }
+  // };
+
+  const onClickEdit = async (template) => {
+    setIsLoading(true);
+    try {
+      const res = await unzipTemplate(template.template_id);
+      console.log("Unzip response:", res);
+      const data = res.data.data;
+
+      if (!res.data.status) {
+        console.error("Unzip error:", data);
+        return;
+      }
+
+      // Save to localStorage
+      localStorage.setItem("oe_html", data.html || "");
+      localStorage.setItem("oe_css", data.css || "");
+      localStorage.setItem("oe_js", data.js || "");
+      localStorage.setItem("oe_theme", data.theme || "");
+      localStorage.setItem("oe_manifest", data.manifest || "");
+
+      dispatch(openTemplateEditModal(template));
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      console.error("Unzip failed", err);
+    }
+  };
+
   const updateForm = { ...formData };
 
   return (
@@ -451,12 +520,16 @@ const TemplateViewPage = () => {
                       category: template?.category_name,
                       subCategory: template?.sub_category_name,
                     }}
-                    onClick={() => console.log("Clicked:", template)}
-                    onClickEdit={() =>
-                      dispatch(openTemplateEditModal(template))
-                    }
+                    isLoading={isLoading}
+                    onClickDelete={""}
+                    onClickEdit={() => {
+                      onClickEdit(template);
+                    }}
+                    onClickCancel={() => {
+                      dispatch(openTemplateEditModal(template));
+                    }}
                   />
-                )
+                ),
               )}
             </div>
           </div>

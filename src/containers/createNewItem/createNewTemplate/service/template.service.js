@@ -25,5 +25,8 @@ export const deleteImage = async (key) =>
 export const zipUpload = async (body) =>
   mitAdminApi.post(`${ApiRoutes.ZIP_UPLOAD}`, body);
 
+export const unzipTemplate = async (templateId) =>
+  mitAdminApi.get(`${ApiRoutes.ZIP_EXTRACT}/${templateId}`);
+
 export const jobProgress = async (job_id) =>
   mitAdminApi.get(`${ApiRoutes.JOB_PROGRESS}/${job_id}`);
