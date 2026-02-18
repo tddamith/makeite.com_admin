@@ -7,13 +7,13 @@ import Scrollbar from "react-scrollbars-custom";
 
 export default function OnlineHtmlEditor() {
   const [html, setHtml] = useState(
-    () => localStorage.getItem("oe_html") || defaultHtml
+    () => localStorage.getItem("oe_html") || defaultHtml,
   );
   const [css, setCss] = useState(
-    () => localStorage.getItem("oe_css") || defaultCss
+    () => localStorage.getItem("oe_css") || defaultCss,
   );
   const [js, setJs] = useState(
-    () => localStorage.getItem("oe_js") || defaultJs
+    () => localStorage.getItem("oe_js") || defaultJs,
   );
   const [active, setActive] = useState("HTML");
   const [allowScripts, setAllowScripts] = useState(false);
@@ -21,7 +21,7 @@ export default function OnlineHtmlEditor() {
   const [viewPointHeight, setViewPointHeight] = useState(0);
   const [wrap, setWrap] = useState(true);
   const [dark, setDark] = useState(
-    () => localStorage.getItem("oe_theme") === "dark"
+    () => localStorage.getItem("oe_theme") === "dark",
   );
   const [status, setStatus] = useState("Saved");
   const fileInputRef = useRef(null);
@@ -47,12 +47,14 @@ export default function OnlineHtmlEditor() {
 
   // Build the preview document
   const srcDoc = useMemo(() => {
+    const baseUrl = "http://localhost:8000/TemplateCards/";
     const doc = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Preview</title>
+<base href="${baseUrl}">
 <style>html,body{margin:0;padding:1rem;box-sizing:border-box;} ${css}</style>
 </head>
 <body>
@@ -243,8 +245,8 @@ ${html}
                 active === "HTML"
                   ? "Write HTML here…"
                   : active === "CSS"
-                  ? "Write CSS here…"
-                  : "Write JavaScript here…"
+                    ? "Write CSS here…"
+                    : "Write JavaScript here…"
               }
             />
           </section>
