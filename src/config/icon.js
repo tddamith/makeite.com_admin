@@ -8,6 +8,7 @@ import { FiPlus, FiX } from "react-icons/fi";
 import { PiCirclesFour } from "react-icons/pi";
 import { TbFolderMinus } from "react-icons/tb";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { MdOutlineStore } from "react-icons/md";
 
 export const AddIcon = (iconName) => {
   switch (iconName) {
@@ -29,6 +30,8 @@ export const AddIcon = (iconName) => {
       return <TbFolderMinus />;
     case "arrow-left":
       return <FaArrowLeftLong />;
+    case "store":
+      return <MdOutlineStore />;
 
     default:
       return;

@@ -44,6 +44,42 @@ const Index = (props) => {
               content={"Banner"}
               onClick={() => setMenuName("Banner")}
             />
+            {/* <MenuButtonCard
+              icon={AddIcon("store")}
+              content={"Store"}
+              isActive={location.pathname === "/store"}
+              onClick={() => {
+                props.history.push("/store");
+                setMenuName("Store");
+              }}
+            /> */}
+            <MenuButtonCard
+              icon={AddIcon("store")}
+              content="Store"
+              // isActive={location.pathname === "/store"}
+            >
+              <div
+                className=" cursor-pointer p-2 font-manrope rounded-sm text-md text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
+                onClick={() => {
+                  props.history.push("/create-store");
+                  setMenuName("Store");
+                }}
+                isActive={location.pathname === "/create-store"}
+              >
+                Create New Store
+              </div>
+
+              <div
+                className="cursor-pointer p-2 font-manrope text-md rounded-sm text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
+                onClick={() => {
+                  props.history.push("/all-store");
+                  setMenuName("Store");
+                }}
+                isActive={location.pathname === "/all-store"}
+              >
+                View All Stores
+              </div>
+            </MenuButtonCard>
           </div>
         </div>
         <div className=" flex flex-row justify-between">

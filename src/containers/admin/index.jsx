@@ -5,11 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { TemplateEditModal } from "../modal";
 import { validateToken } from "../signIn/service/auth.service";
 import { getTokenRefresh, login } from "../../utils/auth";
+import CreateStore from "../createStore";
 
 const Admin = (props) => {
   const { location } = props;
   const { isOpenTemplateEditModal } = useSelector(
-    ({ templateReducer }) => templateReducer
+    ({ templateReducer }) => templateReducer,
   );
 
   useEffect(() => {
@@ -43,6 +44,11 @@ const Admin = (props) => {
           {location.pathname === "/templates" && (
             <>
               <Template />
+            </>
+          )}
+          {location.pathname === "/create-store" && (
+            <>
+              <CreateStore />
             </>
           )}
         </div>

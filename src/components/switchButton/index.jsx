@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 
-const TemplateTypeSwitch = ({ value, onChange }) => {
+const TemplateTypeSwitch = ({ props, value, onChange }) => {
   const [isPaid, setIsPaid] = useState(value);
 
   return (
     <div className="flex items-center justify-between w-full rounded-lg p-3 font-manrope ">
       <div>
-        <h3 className="text-md font-medium text-gray-900">Template type</h3>
+        <h3 className="text-md font-medium text-gray-900">
+          {"Template type" || props?.name}{" "}
+        </h3>
         <p className={`text-md  text-disable `}>{value ? "Paid " : "Free"}</p>
       </div>
 
