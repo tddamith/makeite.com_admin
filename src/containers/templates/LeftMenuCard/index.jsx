@@ -56,7 +56,7 @@ const Index = (props) => {
             <MenuButtonCard
               icon={AddIcon("store")}
               content="Store"
-              // isActive={location.pathname === "/store"}
+              isActive={location.pathname === "/store"}
             >
               <div
                 className=" cursor-pointer p-2 font-manrope rounded-sm text-md text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
@@ -64,7 +64,7 @@ const Index = (props) => {
                   props.history.push("/create-store");
                   setMenuName("Store");
                 }}
-                isActive={location.pathname === "/create-store"}
+                isActive={location.pathname === "/store/create-store"}
               >
                 Create New Store
               </div>
@@ -72,10 +72,10 @@ const Index = (props) => {
               <div
                 className="cursor-pointer p-2 font-manrope text-md rounded-sm text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
                 onClick={() => {
-                  props.history.push("/all-store");
+                  props.history.push("/view-store");
                   setMenuName("Store");
                 }}
-                isActive={location.pathname === "/all-store"}
+                isActive={location.pathname === "/store/view-store"}
               >
                 View All Stores
               </div>
