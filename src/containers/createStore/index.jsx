@@ -100,6 +100,23 @@ const CreateStore = () => {
       invalidReason: "",
       value: "",
     },
+    url: {
+      key: "url",
+      label: "URL",
+      size: "md",
+      isShowRequired: false,
+      elementConfig: {
+        type: "text",
+        placeholder: "-",
+      },
+      touched: false,
+      validation: {
+        required: true,
+      },
+      isValid: false,
+      invalidReason: "",
+      value: "",
+    },
   });
 
   const categorySelect = (value) => {
@@ -287,6 +304,14 @@ const CreateStore = () => {
               />
             )}
           </>
+          <InputBox
+            data={updateForm.url}
+            onChange={async (e) => {
+              e.preventDefault();
+              await handleChange(e.target.value, updateForm.url.key);
+            }}
+          />
+
           <TemplateTypeSwitch
             name="Status"
             value={isActive}
