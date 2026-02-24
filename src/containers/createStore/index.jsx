@@ -49,6 +49,26 @@ const CreateStore = () => {
       invalidReason: "",
       value: "",
     },
+    category: {
+      key: "category",
+      label: "Category",
+      size: "lg",
+      placeholder: "",
+      mainLayerStyles: " flex-column " + " align-content-center " + "mb-3",
+      iconName: "",
+      isRequired: false,
+      loading: false,
+      elementConfig: {
+        options: [],
+      },
+      touched: false,
+      validation: {
+        required: true,
+      },
+      isValid: false,
+      invalidReason: "",
+      value: "",
+    },
     description: {
       key: "description",
       label: "Description",
@@ -319,16 +339,16 @@ const CreateStore = () => {
           />
           <Button
             content="Save"
-            // className={
-            //   updateForm.itemName.value !== "" ||
-            //   updateForm.itemCode.value !== "" ||
-            //   updateForm.category.value !== "" ||
-            //   updateForm.description.value !== "" ||
-            //   updateForm.price.value !== "" ||
-            //   image?.url
-            //     ? "text-white bg-black"
-            //     : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
-            // }
+            className={
+              updateForm.itemName.value !== "" ||
+              updateForm.itemCode.value !== "" ||
+              updateForm.category.value !== "" ||
+              updateForm.description.value !== "" ||
+              updateForm.price.value !== "" ||
+              image?.url
+                ? "text-white bg-black"
+                : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
+            }
             // isActive={
             //   updateForm.templateName.value !== "" ||
             //   updateForm.itemCode.value !== "" ||
