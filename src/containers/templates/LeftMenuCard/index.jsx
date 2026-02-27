@@ -33,7 +33,7 @@ const Index = (props) => {
             <MenuButtonCard
               icon={AddIcon("layout")}
               content={"Template"}
-              isActive={location.pathname === "/templates"}
+              isActive={location.pathname.includes("/templates")}
               onClick={() => {
                 props.history.push("/templates");
                 setMenuName("Template");
@@ -56,24 +56,36 @@ const Index = (props) => {
             <MenuButtonCard
               icon={AddIcon("store")}
               content="Store"
-              isActive={location.pathname === "/store"}
+              isActive={
+                location.pathname.includes("/store") || menuName === "Store"
+              }
+              onclick={() => {
+                setMenuName("Store");
+              }}
             >
               <div
-                className=" cursor-pointer p-2 font-manrope rounded-sm text-md text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
+                className={`cursor-pointer p-3 pl-6 mt-3 ml-4 font-manrope rounded-sm text-md text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover ${
+                  location.pathname === "/store/create-store"
+                    ? "text-primary bg-hover"
+                    : ""
+                }`}
                 onClick={() => {
-                  props.history.push("/create-store");
-                  setMenuName("Store");
+                  props.history.push("/store/create-store");
+                  setMenuName("create-store");
                 }}
-                isActive={location.pathname === "/store/create-store"}
               >
                 Create New Store
               </div>
 
               <div
-                className="cursor-pointer p-2 font-manrope text-md rounded-sm text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover"
+                className={`cursor-pointer p-3 pl-6 ml-4 font-manrope rounded-sm text-md text-disable font-bold hover:text-primary hover:bg-hover active:text-primary active:bg-hover ${
+                  location.pathname === "/store/view-store"
+                    ? "text-primary bg-hover"
+                    : ""
+                }`}
                 onClick={() => {
-                  props.history.push("/view-store");
-                  setMenuName("Store");
+                  props.history.push("/store/view-store");
+                  setMenuName("view-store");
                 }}
                 isActive={location.pathname === "/store/view-store"}
               >

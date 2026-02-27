@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import FormHeader from "../../components/formHeader";
-import InputBox from "../../components/inputBox";
-import TextArea from "../../components/textArea";
-import CategorySelectBox from "../../components/categorySelectBox";
-import ImageUploaderPreview from "../../components/imageUploaderPreview";
-import ImgUploader from "../../components/imgUploader";
-import { CheckValidity } from "../../utils/formValidity";
-import TemplateTypeSwitch from "../../components/switchButton";
-import Button from "../../components/button";
+import FormHeader from "../../../components/formHeader";
+import InputBox from "../../../components/inputBox";
+import TextArea from "../../../components/textArea";
+import CategorySelectBox from "../../../components/categorySelectBox";
+import ImageUploaderPreview from "../../../components/imageUploaderPreview";
+import ImgUploader from "../../../components/imgUploader";
+import { CheckValidity } from "../../../utils/formValidity";
+import TemplateTypeSwitch from "../../../components/switchButton";
+import Button from "../../../components/button";
 
 const CreateStore = () => {
   const [image, setImage] = useState("");
@@ -122,7 +122,7 @@ const CreateStore = () => {
     },
     url: {
       key: "url",
-      label: "URL",
+      label: "Drop Shipping URL",
       size: "md",
       isShowRequired: false,
       elementConfig: {
@@ -138,6 +138,11 @@ const CreateStore = () => {
       value: "",
     },
   });
+
+  const [option, setOption] = useState([
+    { label: "Active", value: false },
+    { label: "Inactive", value: true },
+  ]);
 
   const categorySelect = (value) => {
     console.log({ value });
@@ -334,8 +339,14 @@ const CreateStore = () => {
 
           <TemplateTypeSwitch
             name="Status"
+            option={option.find((item) => item.value === true)?.label}
             value={isActive}
-            onChange={() => setIsActive(!isActive)}
+            onChange={() => {
+              setIsActive(!isActive);
+              setOption((prev) =>
+                prev.map((item) => ({ ...item, value: !item.value })),
+              );
+            }}
           />
           <Button
             content="Save"

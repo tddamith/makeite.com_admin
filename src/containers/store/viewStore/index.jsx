@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import FormHeader from "../../components/formHeader";
-import ItemCard from "../../components/itemCard";
+import FormHeader from "../../../components/formHeader";
+import ItemCard from "../../../components/itemCard";
 
 const ViewStore = () => {
   return (
