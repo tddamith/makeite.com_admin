@@ -9,6 +9,7 @@ import { PiCirclesFour } from "react-icons/pi";
 import { TbFolderMinus } from "react-icons/tb";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { MdOutlineStore } from "react-icons/md";
+import { RiGalleryLine } from "react-icons/ri";
 
 export const AddIcon = (iconName) => {
   switch (iconName) {
@@ -32,6 +33,8 @@ export const AddIcon = (iconName) => {
       return <FaArrowLeftLong />;
     case "store":
       return <MdOutlineStore />;
+    case "media":
+      return <RiGalleryLine />;
 
     default:
       return;

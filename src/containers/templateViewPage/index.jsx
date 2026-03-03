@@ -366,7 +366,7 @@ const TemplateViewPage = () => {
     try {
       const res = await unzipTemplate(template.template_id);
       console.log("Unzip response:", res);
-      const data = res.data.data;
+      const data = res?.data?.data;
 
       if (!res.data.status) {
         console.error("Unzip error:", data);
@@ -375,11 +375,11 @@ const TemplateViewPage = () => {
       }
 
       // Save to localStorage
-      localStorage.setItem("oe_html", data.html || "");
-      localStorage.setItem("oe_css", data.css || "");
-      localStorage.setItem("oe_js", data.js || "");
-      localStorage.setItem("oe_theme", data.theme || "");
-      localStorage.setItem("oe_manifest", data.manifest || "");
+      localStorage.setItem("oe_html", data?.html || "");
+      localStorage.setItem("oe_css", data?.css || "");
+      localStorage.setItem("oe_jsx", data?.jsx || "");
+      localStorage.setItem("oe_theme", data?.theme || "");
+      localStorage.setItem("oe_manifest", data?.manifest || "");
 
       dispatch(openTemplateEditModal(template));
       setIsLoading(false);

@@ -27,6 +27,9 @@ const ApiRoutes = {
   //ZIP EXTRACT
   ZIP_EXTRACT: "/template/unzip",
 
+  // MEDIA
+  GET_ALL_MEDIA: "/get/all/media",
+
   //MEDIA UPLOAD
   IMAGE_UPLOAD: "/upload/image",
   ZIP_UPLOAD: "/upload/zip",

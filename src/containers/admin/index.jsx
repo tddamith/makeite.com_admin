@@ -6,6 +6,7 @@ import { TemplateEditModal } from "../modal";
 import { validateToken } from "../signIn/service/auth.service";
 import { getTokenRefresh, login } from "../../utils/auth";
 import { CreateStore, ViewStore } from "../store";
+import Media from "../media";
 
 const Admin = (props) => {
   const { location } = props;
@@ -54,6 +55,11 @@ const Admin = (props) => {
           {location.pathname === "/store/view-store" && (
             <>
               <ViewStore />
+            </>
+          )}{" "}
+          {location.pathname === "/media" && (
+            <>
+              <Media />
             </>
           )}
         </div>

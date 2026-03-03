@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import { persistReducer } from "redux-persist";
 import TemplateReducer from "../../containers/modal/TemplateEditModal/redux/reducer";
+import MediaReducer from "../../containers/media/redux/reducer";
 
 const rootReducer = combineReducers({
   // categoryReducer: persistReducer(
@@ -9,7 +10,11 @@ const rootReducer = combineReducers({
   // ),
   templateReducer: persistReducer(
     { key: "templateReducer", storage: sessionStorage },
-    TemplateReducer.reducer
+    TemplateReducer.reducer,
+  ),
+  mediaReducer: persistReducer(
+    { key: "mediaReducer", storage: sessionStorage },
+    MediaReducer.reducer,
   ),
 });
 

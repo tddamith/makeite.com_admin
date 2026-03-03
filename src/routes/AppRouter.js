@@ -16,6 +16,7 @@ function AppRouter() {
       <PublicRoute component={SignInComponent} path="/sign-in" exact />
       <PublicRoute component={DesignGuidComponent} path="/design-guide" exact />
       <PublicRoute component={Editor} path="/editor" exact />
+      <PublicRoute component={Admin} path="/:module" exact />
     </Switch>
   );
 }

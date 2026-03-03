@@ -92,6 +92,16 @@ const Index = (props) => {
                 View All Stores
               </div>
             </MenuButtonCard>
+
+            <MenuButtonCard
+              icon={AddIcon("layout")}
+              content={"Media"}
+              isActive={location.pathname.includes("/media")}
+              onClick={() => {
+                props.history.push("/media");
+                setMenuName("Media");
+              }}
+            />
           </div>
         </div>
         <div className=" flex flex-row justify-between">
