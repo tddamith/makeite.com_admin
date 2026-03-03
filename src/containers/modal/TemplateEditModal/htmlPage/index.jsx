@@ -47,7 +47,7 @@ export default function OnlineHtmlEditor() {
 
   // Build the preview document
   const srcDoc = useMemo(() => {
-    const baseUrl = "http://localhost:8000/TemplateCards/";
+    const baseUrl = "http://localhost:8080/TemplateCards/";
     const doc = `<!doctype html>
 <html lang="en">
 <head>

@@ -370,6 +370,7 @@ const TemplateViewPage = () => {
 
       if (!res.data.status) {
         console.error("Unzip error:", data);
+        setIsLoading(false);
         return;
       }
 
@@ -385,6 +386,8 @@ const TemplateViewPage = () => {
     } catch (err) {
       setIsLoading(false);
       console.error("Unzip failed", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
