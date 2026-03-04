@@ -19,6 +19,9 @@ import {
 import ImgUploader from "../../../components/imgUploader";
 import ImageComponent from "../../../components/imageComponent";
 import ImageUploaderPreview from "../../../components/imageUploaderPreview";
+import { openGenerateFileModal } from "../../modal/TemplateEditModal/redux/actions";
+import TemplateGenerator from "../../modal/generateFile";
+import { useDispatch, useSelector } from "react-redux";
 
 const CreateNewTemplate = () => {
   const { notification } = AntdApp.useApp();
@@ -28,6 +31,12 @@ const CreateNewTemplate = () => {
   const [image, setImage] = useState("");
   const [template, setTemplate] = useState("");
   const [progress, setProgress] = useState(0);
+
+  const dispatch = useDispatch();
+  const { isOpenGenerateFileModal, fileData } = useSelector(
+    ({ templateReducer }) => templateReducer,
+  );
+
   const [formData, setFormData] = useState({
     templateName: {
       key: "templateName",
@@ -166,7 +175,7 @@ const CreateNewTemplate = () => {
     let validityRes = await CheckValidity(
       inputIdentity,
       updateForm[inputIdentity].value,
-      updateForm[inputIdentity].validation
+      updateForm[inputIdentity].validation,
     );
 
     if (validityRes) {
@@ -291,6 +300,7 @@ const CreateNewTemplate = () => {
   const updateForm = { ...formData };
   return (
     <>
+      {isOpenGenerateFileModal && <TemplateGenerator />}
       <div className="flex flex-col w-[405px] h-full border-border-deafult border-x_sm rounded-md p-24px gap-4">
         <div className="font-manrope font-bold text-lg text-font-default mb-5">
           Create Template
@@ -317,6 +327,7 @@ const CreateNewTemplate = () => {
             <h2 className="text-md font-medium text-font-default font-manrope  mb-2px">
               Upload template
             </h2>
+
             <ImageComponent
               data={{
                 size: "w-auto h-[127px] rounded-16px mt-3 object-cover",
@@ -337,6 +348,7 @@ const CreateNewTemplate = () => {
           <Uploader
             data={{
               id: "zip-upload",
+              isButton: true,
               label: "Upload template",
               accept: ".zip",
               description: "zip up to 20MB",
@@ -346,6 +358,10 @@ const CreateNewTemplate = () => {
               type: isPaid ? "paid" : "free",
             }}
             onChange={onChangeZip}
+            onClickGenerate={() => {
+              setIsLoading(true);
+              dispatch(openGenerateFileModal());
+            }}
           />
         )}
 
@@ -379,9 +395,9 @@ const CreateNewTemplate = () => {
                     image?.filename?.length > 20
                       ? `${image?.filename.substring(
                           0,
-                          5
+                          5,
                         )}...${image?.filename.substring(
-                          image?.filename.lastIndexOf(".") - 5
+                          image?.filename.lastIndexOf(".") - 5,
                         )}`
                       : image?.filename,
                   fileSize: (image?.size / 1000000).toFixed(2) + "MB",

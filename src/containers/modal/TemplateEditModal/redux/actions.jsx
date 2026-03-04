@@ -15,3 +15,11 @@ export const setTemplateData = (payload) => (dispatch) => {
 export const doneRefresh = () => (dispatch) => {
   dispatch(TemplateReducer.actions.doneRefresh());
 };
+
+export const openGenerateFileModal = (payload) => (dispatch) => {
+  dispatch(TemplateReducer.actions.openGenerateFileModal(payload));
+};
+
+export const closeGenerateFileModal = () => (dispatch) => {
+  dispatch(TemplateReducer.actions.closeGenerateFileModal());
+};

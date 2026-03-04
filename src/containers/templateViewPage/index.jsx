@@ -20,6 +20,7 @@ import {
   openTemplateEditModal,
 } from "../modal/TemplateEditModal/redux/actions";
 import { App as AntdApp } from "antd";
+import Spinner from "../../components/spinner";
 
 const TemplateViewPage = () => {
   const { notification } = AntdApp.useApp();
@@ -417,6 +418,22 @@ const TemplateViewPage = () => {
             />
           ))
         : ""} */}
+
+      {isLoading && (
+        <>
+          <div
+            className="flex fixed flex-col justify-center items-center w-full h-full z-[1001] inset-0 
+      bg-white/30 
+      transition duration-300
+      backdrop-blur-sm"
+          >
+            <Spinner className="w-24 h-24  text-purple-400 animate-spin" />
+            <div className="font-manrope text-black text-md font-semibold mt-5">
+              Please wait. your request is being processed...
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="flex flex-row gap-52 items-center justify-between p-5 border-border-primary border-b-x_sm bg-white">
         <div className="flex flex-row gap-4 w-full">

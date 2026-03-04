@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { file } from "jszip";
 const initialState = {
   isOpenTemplateEditModal: false,
+  isOpenGenerateFileModal: false,
   templateData: "",
   isUpdate: false,
   isRefresh: false,
+  fileData: "",
 };
 
 const TemplateReducer = createSlice({
@@ -38,6 +41,21 @@ const TemplateReducer = createSlice({
       return {
         ...state,
         isRefresh: false,
+      };
+    },
+    openGenerateFileModal: (state, { payload }) => {
+      return {
+        ...state,
+        fileData: payload,
+        isOpenGenerateFileModal: true,
+      };
+    },
+
+    closeGenerateFileModal: (state) => {
+      return {
+        ...state,
+        fileData: "",
+        isOpenGenerateFileModal: false,
       };
     },
   },

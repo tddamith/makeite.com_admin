@@ -9,10 +9,14 @@ import {
 
 import { notification, Progress } from "antd";
 import ImageUploaderPreview from "../imageUploaderPreview";
+import Button from "../button";
+import { useDispatch } from "react-redux";
+import { openGenerateFileModal } from "../../containers/modal/TemplateEditModal/redux/actions";
 
-const Uploader = ({ data, onChange, onClickRemove }) => {
+const Uploader = ({ data, onChange, onClickRemove, onClickGenerate }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const dispatch = useDispatch();
 
   const onChangeZip = async (e) => {
     try {
@@ -123,9 +127,56 @@ const Uploader = ({ data, onChange, onClickRemove }) => {
 
   return (
     <>
-      <h2 className="text-md font-medium text-font-default font-manrope mb-2px">
-        {data?.label}
-      </h2>
+      <div className="flex flex-row justify-between p-2 gap-6">
+        <h2 className="text-md font-medium text-font-default font-manrope mb-2px">
+          {data?.label}
+        </h2>
+        {/* gradient button */}
+        {data.isButton && (
+          // <Button
+          //   content="Generate File"
+          //   className={
+          //     " flex rounded-md text-[8px] w-4 border bg-gradient-to-r from-secondary to-primary cursor-pointer hover:text-primary  hover:bg-white "
+          //   }
+          //   onClick={onClickGenerate}
+          // />
+
+          <div
+            className="
+      inline-block 
+      p-[2px] 
+      rounded-[10px] 
+      bg-gradient-to-r 
+      from-primary 
+      via-secondary 
+      to-primary
+      bg-[length:200%_200%]
+      animate-[gradientMove_2s_linear_infinite]
+      
+    "
+            onClick={onClickGenerate}
+          >
+            <button
+              className="
+        bg-white 
+        px-4 
+        py-2 
+        rounded-[calc(10px-2px)] 
+        text-[11px] 
+        font-medium 
+        text-gray-700 
+        hover:text-purple-600 
+        hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]
+        transition-all 
+        duration-300 
+        cursor-pointer
+      "
+            >
+              Generate File
+            </button>
+          </div>
+        )}
+      </div>
 
       <div
         className="flex flex-col justify-center align-center rounded-x_sm border-dashed border-border-deafult border-x_sm p-42px font-manrope"
