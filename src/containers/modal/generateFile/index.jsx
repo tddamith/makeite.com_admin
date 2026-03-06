@@ -562,7 +562,7 @@ export default function TemplateGenerator() {
   return (
     <>
       <div
-        className={`flex flex-col mt-[-150px] ml-[200px] fixed z-[999] animate_animated p-8 bg-white overflow-hidden shadow-md w-full h-full  ${
+        className={`flex flex-col mt-[-150px] ml-[200px] fixed z-[999] animate_animated px-4 py-8 bg-white overflow-hidden shadow-md w-full h-full  ${
           isOpenGenerateFileModal
             ? "block animate__fadeInUp "
             : "none animate__fadeOutDown"
