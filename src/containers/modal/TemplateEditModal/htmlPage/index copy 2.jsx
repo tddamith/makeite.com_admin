@@ -34,8 +34,8 @@ async function callClaude(systemPrompt, userPrompt) {
   return data.content?.map((b) => b.text || "").join("") || "";
 }
 
-// ─── MANIFEST SYSTEM PROMPT ─────────────────────────────────────────────────
-const MANIFEST_SYSTEM = `You are a template analyzer. Given HTML/CSS code for an invitation/card template, extract all editable fields and output ONLY a valid JSON object (no markdown, no backticks, no explanation).
+// ─── Prompts ────────────────────────────────────────────────────────────────
+const MANIFEST_SYSTEM = `You are a template analyzer. Given HTML code for an invitation/card template, extract all editable fields and output ONLY a valid JSON object (no markdown, no backticks, no explanation).
 
 The JSON must follow this exact shape:
 {
@@ -51,143 +51,158 @@ The JSON must follow this exact shape:
       "group": "GroupName",
       "default": "default value",
       "styles": ["color","fontSize","fontFamily"],
-      "position": { "x": 120, "y": 200, "w": 360, "h": 60 }
+      "position": { "x": 0, "y": 0 }
     }
   ],
   "fonts": ["Font1", "Font2"]
 }
 
-CRITICAL RULES FOR POSITIONS:
-- Every field with "type":"text" MUST have a "position" key with x, y, w, h in pixels
-- x = distance from LEFT edge of the card (read from CSS: left, margin-left, padding-left, text-align:center means x = (cardWidth - elementWidth)/2)
-- y = distance from TOP edge of the card (read from CSS: top, margin-top, padding-top, sum of preceding element heights + gaps)
-- w = width of the text element in pixels (read from CSS width, or estimate: for centered text use 80% of card width; for names use fontSize * charCount * 0.6)
-- h = height in pixels = fontSize * lineHeight (default lineHeight 1.3, so h = fontSize * 1.3; for multiline multiply by line count)
-- Convert % values using the card size (e.g., width:50% on a 600px card = 300px)
-- If an element uses flexbox centering, calculate its visual center position
-- Positions must be ACCURATE — they determine where drag handles appear in the editor
+Rules:
+- Identify all text content that users would want to customize (names, dates, venues, taglines, etc.)
+- Identify color variables/values as "color" type fields
+- Identify font families as "font" type fields
+- Identify image URLs as "image" type fields
+- Group related fields logically (Names, Event, Venue, Details, Style, Media)
+- The "id" should be snake_case, derived from the template name/content
+- "styles" array applies to text fields only: include relevant values from ["color","fontSize","fontFamily"]
+- For fields with "type": "text" ONLY — infer "position" as { "x": <number>, "y": <number> } in pixels relative to the card top-left corner. Read the element's CSS top/left/margin/padding/transform/translate values. Convert percentages using the card size (width=600, height=840 unless stated). These are fallback hints — the client overrides them with real DOM measurements on first render. Use { "x": 0, "y": 0 } if undetectable.
+- Fields with "type": "color", "font", or "image" must NOT have a "position" key at all — omit it entirely
+- The "fonts" array must list every distinct font family found in the template, plus 2-3 similar alternatives suitable for the design style
+- Output ONLY the JSON, nothing else`;
 
-FIELD RULES:
-- Identify all text content users want to customize: names, dates, venues, times, taglines, RSVP info
-- color/font/image type fields must NOT have a "position" key
-- Group fields: Names, Event, Venue, Details, Style, Media
-- id should be snake_case
-- styles array for text fields: include applicable from ["color","fontSize","fontFamily"]
-- fonts array: all fonts found in template + 2-3 similar alternatives
+const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the PATH 2 return() of this existing function.
 
-Output ONLY the JSON object, nothing else.`;
+Here is the full function context you are generating FOR:
 
-// ─── COMPONENT SYSTEM PROMPT ─────────────────────────────────────────────────
-const COMPONENT_SYSTEM = `You are a React JSX generator. Given an HTML/CSS invitation template and its manifest JSON, generate JSX for the InvitationTemplate component.
+\`\`\`jsx
+function InvitationTemplate({ scale = 1, previewRef, elements, css, manifest, assetBaseUrl }) {
+  const { data, editorMode, updateField, positions, updatePosition } = useTemplate();
+  const containerRef = useRef();
 
-The client-side InvitationTemplate has this EXACT Editable component available in scope:
+  const accent = data.accent_color || "#8b6843";
+  const bg     = data.bg_color     || "#faf6ef";
+  const dark   = data.text_dark    || "#2a1f14";
+  const font   = data.font_family  || "Cormorant Garamond";
+  const cardW  = manifest?.size?.width  || 600;
+  const cardH  = manifest?.size?.height || 840;
 
-\`\`\`
-// Editable uses react-rnd for drag + resize when editorMode is true
-// positions[fieldId] = { x, y, w, h } — seeded from manifest.fields[].position
-const Editable = ({ fieldId, tag: Tag = "span", style }) => {
-  const isEdit = editorMode;
-  const pos = positions[fieldId] || { x: 0, y: 0, w: 200, h: 40 };
-  return (
-    <Rnd
-      position={{ x: pos.x, y: pos.y }}
-      size={{ width: pos.w, height: pos.h }}
-      disableDragging={!isEdit}
-      enableResizing={isEdit ? { bottom:true, bottomRight:true, right:true } : false}
-      bounds="parent"
-      onDragStop={(e, d) => updatePosition(fieldId, { ...pos, x: d.x, y: d.y })}
-      onResizeStop={(e, dir, ref, delta, position) =>
-        updatePosition(fieldId, { x: position.x, y: position.y, w: parseInt(ref.style.width), h: parseInt(ref.style.height) })
-      }
-      style={{ position: "absolute", zIndex: 5 }}
-    >
-      <Tag
-        contentEditable={isEdit}
-        suppressContentEditableWarning
-        data-field={fieldId}
-        style={{
-          ...style,
-          width: "100%", height: "100%",
-          outline: "none",
-          cursor: isEdit ? "move" : "default",
-          display: "block", boxSizing: "border-box",
-          border: isEdit ? "1.5px dashed rgba(190,23,250,0.5)" : "none",
-        }}
-        onBlur={(e) => { if (isEdit) updateField(fieldId, e.target.innerText); }}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.target.blur(); } }}
+  const cardStyle = {
+    width: cardW, height: cardH,
+    transform: \`scale(\${scale})\`, transformOrigin: "top left",
+    position: "relative", overflow: "hidden",
+    boxShadow: "0 40px 100px rgba(0,0,0,0.22)",
+    flexShrink: 0, background: bg, zIndex: 0,
+    fontFamily: \`'\${font}', serif\`,
+  };
+
+  // TWO-PHASE Editable:
+  // Phase 1: positions[fieldId] is undefined → renders as plain tag in normal document flow
+  //          so the DOM can be measured after mount
+  // Phase 2: positions[fieldId] is set → Rnd takes over with absolute positioning
+  const Editable = ({ fieldId, tag: Tag = "span", style, className }) => {
+    const isEdit      = editorMode;
+    const hasPosition = positions[fieldId] !== undefined;
+    const pos         = positions[fieldId] || { x: 0, y: 0 };
+
+    if (!hasPosition) {
+      return (
+        <Tag
+          data-field={fieldId}
+          style={{ ...style, outline: "none", cursor: isEdit ? "text" : "default" }}
+          className={className}
+        >
+          {data[fieldId]}
+        </Tag>
+      );
+    }
+
+    return (
+      <Rnd
+        position={{ x: pos.x, y: pos.y }}
+        enableResizing={false}
+        disableDragging={!isEdit}
+        onDragStop={(e, d) => updatePosition(fieldId, { x: d.x, y: d.y })}
+        style={{ position: "absolute", zIndex: 2 }}
       >
-        {data[fieldId]}
-      </Tag>
-    </Rnd>
-  );
-};
+        <Tag
+          contentEditable={isEdit}
+          suppressContentEditableWarning
+          data-field={fieldId}
+          style={{
+            ...style, outline: "none",
+            cursor: isEdit ? "text" : "default",
+            transition: "box-shadow 0.15s", borderRadius: 2, whiteSpace: "nowrap",
+          }}
+          className={className}
+          onFocus={(e) => { if (isEdit) e.target.style.boxShadow = \`0 0 0 1.5px \${accent}55\`; }}
+          onBlur={(e) => { if (isEdit) { e.target.style.boxShadow = "none"; updateField(fieldId, e.target.innerText); } }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.target.blur(); } }}
+        >
+          {data[fieldId]}
+        </Tag>
+      </Rnd>
+    );
+  };
+
+  // Seed positions from DOM after phase-1 render.
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const textFields = (manifest?.fields || []).filter(f => f.type === "text");
+    const allSeeded  = textFields.every(f => positions[f.id] !== undefined);
+    if (allSeeded) return;
+    const parentRect = containerRef.current.getBoundingClientRect();
+    const nodes      = containerRef.current.querySelectorAll("[data-field]");
+    nodes.forEach((node) => {
+      const fieldId = node.dataset.field;
+      if (positions[fieldId] !== undefined) return;
+      const rect = node.getBoundingClientRect();
+      updatePosition(fieldId, {
+        x: (rect.left - parentRect.left) / scale,
+        y: (rect.top  - parentRect.top)  / scale,
+      });
+    });
+  });
 \`\`\`
 
-GENERATE ONLY the JSX return value — starting with <div ref={previewRef} style={cardStyle}>.
+IMPORTANT: Generate ONLY the PATH 2 return() JSX — starting with the root <div>.
 
-Available variables in scope (already defined, DO NOT redefine):
-- data         — field values object, keyed by field id
-- accent       — data.accent_color || "#8b6843"
-- bg           — data.bg_color || "#faf6ef"  
-- dark         — data.text_dark || "#2a1f14"
-- font         — data.font_family || "Cormorant Garamond"
-- cardW, cardH — card dimensions in px
-- cardStyle    — { width:cardW, height:cardH, transform:scale, position:"relative", overflow:"hidden", background:bg, fontFamily:font, ... }
-- editorMode   — boolean
-- previewRef   — ref for root div
-- positions    — object: fieldId → { x, y, w, h } seeded from manifest
-- updatePosition — fn(fieldId, {x,y,w,h})
-- updateField  — fn(fieldId, value)
-- Editable     — drag+resize component (described above)
-- Rnd          — from react-rnd (already in scope, used by Editable internally)
+Available variables in scope (all defined above — do NOT redefine any):
+- data           — field values object keyed by field id
+- accent         — string color from data.accent_color
+- bg             — string color from data.bg_color
+- dark           — string color from data.text_dark
+- font           — string font name from data.font_family
+- cardW, cardH   — card dimensions in px
+- cardStyle      — complete root div style (do NOT add to or override it)
+- editorMode     — boolean
+- previewRef     — ref, MUST be placed on the root div only
+- containerRef   — ref, MUST be placed on the direct inner wrapper div only
+- scale          — number, already inside cardStyle — do NOT use it in any style
+- positions      — object: fieldId → {x,y} or undefined if not yet measured
+- updatePosition — function(fieldId, {x, y})
+- Editable       — two-phase component, handles its own positioning internally
 
-STRICT Z-INDEX LAYERING — FOUR LEVELS, NO EXCEPTIONS:
+Rules:
+1. Output ONLY JSX starting with the root <div> — no imports, no exports, no function wrappers, no variable declarations
+2. Root <div> MUST be exactly: <div ref={previewRef} style={cardStyle}>
+3. The ONLY direct child of root must be the containerRef wrapper: <div ref={containerRef} style={{ width: \"100%\", height: \"100%\", position: \"relative\", overflow: \"hidden\" }}>
+4. ALL content — Editables, images, decorative elements — goes inside the containerRef wrapper
+5. Do NOT add, override, or spread any extra styles onto the root div
+6. Do NOT use transform or scale anywhere in the output
+7. Use inline styles only — no Tailwind classes, no CSS class names
+8. For every text field in the manifest: use <Editable fieldId="field_id" tag="appropriate_html_tag" style={{ /* typography/color styles only — NO position/top/left/transform/x/y */ }} />
+9. CRITICAL: Do NOT put top, left, position, transform, x, or y on any <Editable> props — Editable handles positioning internally via Rnd after DOM measurement
+10. Static decorative elements (borders, lines, ornaments, SVGs, background images): use style={{ position:"absolute", top:..., left:... }} directly
+11. For image fields: {data.field_id && <img src={data.field_id} alt="..." style={{ position:"absolute", top:..., left:..., width:..., height:... }} />}
+12. Convert CSS var(--name) → JS variable: --accent→accent, --bg→bg, --dark→dark, --font→font. Inline unmatched vars as resolved hex values.
+13. Faithfully recreate the FULL visual design — all backgrounds, images, decorative layers, borders, and text layout from the original HTML/CSS
+14. For layout: use the same layout approach as the original (flexbox/grid/absolute) for non-Editable structural containers
+15. Do NOT output markdown fences, backticks, comments, or any explanation — raw JSX only
+16. Do NOT end the output with a semicolon after the closing </div>
 
-The card root div has its own background color (e.g. dark purple). All absolute children stack
-on top of that background. The levels from bottom to top are:
+Output ONLY raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
 
-  zIndex:2  — Decorative <img> tags (florals, roses, corners, watercolors, borders, ANY image)
-              These sit ON TOP of the card background color but BELOW text.
-              opacity:0.55, position:"absolute", pointerEvents:"none"
-
-  zIndex:3  — Non-image structural decorations (<div> borders, SVG ornaments, dividers)
-              opacity:1, position:"absolute", pointerEvents:"none"
-
-  zIndex:5  — ALL <Editable> text fields (set automatically by Rnd — do NOT override)
-              opacity:1, always fully visible
-
-CRITICAL RULES:
-- position:"absolute" is MANDATORY on every <img> — without it the image joins normal
-  document flow and stretches the card height. No exceptions.
-- NEVER set any <img> to zIndex:0 or zIndex:1 — it will disappear behind the card background
-- NEVER apply opacity to any element that contains text or wraps an Editable
-- NEVER include opacity in Editable style prop
-
-LAYER SUMMARY:
-  <img> tags   → position:"absolute", zIndex:2, opacity:0.55, pointerEvents:"none"
-  <div>/<svg>  → position:"absolute", zIndex:3, opacity:1,    pointerEvents:"none"
-  <Editable>   → zIndex:5 (automatic),          opacity:1
-
-RULES:
-1. Root element MUST be: <div ref={previewRef} style={cardStyle}>
-2. The root div already has position:"relative" and overflow:"hidden" in cardStyle — do NOT add them again
-3. ALL Editable elements are positioned absolutely by Rnd internally — do NOT wrap them in position:absolute containers
-4. For every text field in the manifest: use <Editable fieldId="field_id" tag="h1|h2|p|span" style={{ typography styles only }} />
-   - style prop: ONLY include typography/visual styles: fontSize, color, fontWeight, fontStyle, textAlign, letterSpacing, lineHeight, textTransform, fontFamily
-   - NEVER include opacity, position, top, left, right, bottom, width, height, transform in Editable style
-   - NEVER wrap an Editable in a container that has opacity set — Rnd handles all positioning
-5. Static decorative non-image elements (borders, dividers, SVGs): style={{ position:"absolute", zIndex:3, pointerEvents:"none", ... }} — NO opacity reduction
-6. Decorative template images: style={{ position:"absolute", top:N, left:N, width:N, height:N, zIndex:2, opacity:0.55, pointerEvents:"none" }}
-7. User-uploadable image fields: {data.image_field_id && <img src={data.image_field_id} style={{ position:"absolute", top:N, left:N, width:N, height:N, objectFit:"cover", zIndex:2, opacity:0.55, pointerEvents:"none" }} />}
-8. Convert CSS var(--x) → JS variables: --accent→accent, --bg→bg, --dark→dark, --font→font
-9. Recreate the FULL visual design faithfully — all decorative layers, backgrounds, borders
-10. Do NOT use scale or transform anywhere
-11. Do NOT output markdown fences, backticks, or any explanation — ONLY raw JSX
-12. Do NOT end the JSX with a semicolon
-13. Static text not in manifest ("·", "&" etc.) → plain <span style={{ position:"absolute", zIndex:1, ...positional styles }}> — not Editable, NO opacity reduction
-14. The generated JSX will be compiled with Babel at runtime and injected — it must be valid JSX`;
-
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────
 export default function TemplateGenerator() {
   const [htmlInput, setHtmlInput] = useState(
     () => localStorage.getItem("oe_html") || "",
@@ -206,28 +221,23 @@ export default function TemplateGenerator() {
   const [viewPointHeight, setViewPointHeight] = useState(window.innerHeight);
 
   useEffect(() => {
-    const update = () => setViewPointHeight(window.innerHeight);
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    const onResize = () => setViewPointHeight(window.innerHeight);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   const isGenerating =
     step === "generating-manifest" || step === "generating-component";
 
-  // ── Generate ──────────────────────────────────────────────────────────────
+  // ── Generate ──────────────────────────────────────────────────────
   const generate = async () => {
-    if (!htmlInput.trim() && !cssInput.trim()) return;
+    if (!htmlInput.trim()) return;
     setError("");
     setManifest(null);
     setComponentCode("");
-
     try {
       setStep("generating-manifest");
-      const templateInput = `Here is the HTML template:\n\n${htmlInput}${
-        cssInput.trim()
-          ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\``
-          : ""
-      }`;
+      const templateInput = `Here is the HTML template:\n\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}`;
       const manifestRaw = await callClaude(MANIFEST_SYSTEM, templateInput);
 
       let manifestObj;
@@ -239,40 +249,16 @@ export default function TemplateGenerator() {
         manifestObj = JSON.parse(cleaned);
       } catch {
         throw new Error(
-          "Failed to parse manifest JSON. Raw:\n" + manifestRaw.slice(0, 300),
+          "Failed to parse manifest JSON. Raw output:\n" +
+            manifestRaw.slice(0, 300),
         );
       }
-
-      // Ensure every text field has a position
-      manifestObj.fields = (manifestObj.fields || []).map((f, i) => {
-        if (f.type === "text" && !f.position) {
-          const cardW = manifestObj.size?.width || 600;
-          const cardH = manifestObj.size?.height || 840;
-          const textFields = manifestObj.fields.filter(
-            (ff) => ff.type === "text",
-          );
-          const idx = textFields.findIndex((ff) => ff.id === f.id);
-          const spacing = cardH / (textFields.length + 1);
-          f.position = {
-            x: Math.round(cardW * 0.1),
-            y: Math.round(spacing * (idx + 1) - 20),
-            w: Math.round(cardW * 0.8),
-            h: 50,
-          };
-        }
-        return f;
-      });
-
       setManifest(manifestObj);
 
       setStep("generating-component");
       const compRaw = await callClaude(
         COMPONENT_SYSTEM,
-        `HTML Template:\n${htmlInput}${
-          cssInput.trim()
-            ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\``
-            : ""
-        }\n\nManifest JSON:\n${JSON.stringify(manifestObj, null, 2)}`,
+        `HTML Template:\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}\n\nManifest JSON:\n${JSON.stringify(manifestObj, null, 2)}`,
       );
       const compCleaned = compRaw
         .replace(/^```[a-z]*\n?/m, "")
@@ -287,7 +273,7 @@ export default function TemplateGenerator() {
     }
   };
 
-  // ── Load HTML file ────────────────────────────────────────────────────────
+  // ── Load HTML file ────────────────────────────────────────────────
   const loadFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -302,14 +288,14 @@ export default function TemplateGenerator() {
     e.target.value = "";
   };
 
-  // ── Copy ──────────────────────────────────────────────────────────────────
+  // ── Copy ──────────────────────────────────────────────────────────
   const copy = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(""), 1800);
   };
 
-  // ── Download ZIP ──────────────────────────────────────────────────────────
+  // ── Download ZIP ──────────────────────────────────────────────────
   const downloadZip = async () => {
     if (!manifest || !componentCode) return;
     try {
@@ -321,9 +307,7 @@ export default function TemplateGenerator() {
       if (cssInput.trim()) folder.file("template.css", cssInput);
       folder.file(
         "README.md",
-        `# ${manifest.name}\n\nGenerated template package.\n\nFiles:\n- manifest.json\n- template-elements.jsx\n${
-          cssInput.trim() ? "- template.css\n" : ""
-        }`,
+        `# ${manifest.name}\n\nGenerated template package.\n\n## Files\n- \`manifest.json\` — field definitions and metadata\n- \`template-elements.jsx\` — JSX return content for InvitationTemplate\n${cssInput.trim() ? "- `template.css` — original CSS styles\n" : ""}\n## Usage\nPaste the contents of \`template-elements.jsx\` inside the return() of your InvitationTemplate function.\n`,
       );
       const blob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(blob);
@@ -337,7 +321,7 @@ export default function TemplateGenerator() {
     }
   };
 
-  // ─── Styles ───────────────────────────────────────────────────────────────
+  // ─── Styles ──────────────────────────────────────────────────────
   const S = {
     root: {
       minHeight: "100vh",
@@ -378,8 +362,11 @@ export default function TemplateGenerator() {
       letterSpacing: "0.08em",
     },
     body: { flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 },
-    panel: { padding: "28px", borderRight: "1px solid rgba(255,255,255,0.05)" },
-    panelRight: { padding: "28px" },
+    panel: {
+      padding: "28px 28px",
+      borderRight: "1px solid rgba(255,255,255,0.05)",
+    },
+    panelRight: { padding: "28px 28px" },
     label: {
       fontSize: 10,
       letterSpacing: "0.12em",
@@ -402,6 +389,7 @@ export default function TemplateGenerator() {
       resize: "none",
       outline: "none",
       boxSizing: "border-box",
+      transition: "border-color 0.2s",
     },
     btnRow: { display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" },
     btn: (color) => ({
@@ -420,6 +408,7 @@ export default function TemplateGenerator() {
             ? "linear-gradient(135deg,#22c55e,#16a34a)"
             : "rgba(255,255,255,0.07)",
       color: color === "ghost" ? "#9ca3af" : "#fff",
+      transition: "opacity 0.15s,transform 0.1s",
     }),
     statusBar: {
       display: "flex",
@@ -452,6 +441,7 @@ export default function TemplateGenerator() {
       background: active ? "rgba(124,92,252,0.2)" : "transparent",
       color: active ? "#c084fc" : "#6b6a68",
       borderBottom: active ? "1px solid #7c5cfc" : "1px solid transparent",
+      transition: "all 0.15s",
     }),
     codeBlock: {
       position: "relative",
@@ -484,6 +474,7 @@ export default function TemplateGenerator() {
       fontSize: 10,
       fontFamily: "inherit",
       cursor: "pointer",
+      letterSpacing: "0.06em",
     },
     errorBox: {
       marginTop: 14,
@@ -495,7 +486,7 @@ export default function TemplateGenerator() {
       fontSize: 12,
       lineHeight: 1.6,
     },
-    pill: (group) => {
+    manifestPill: (group) => {
       const colors = {
         Names: "#7c5cfc",
         Event: "#06b6d4",
@@ -521,14 +512,15 @@ export default function TemplateGenerator() {
   };
 
   const statusMessages = {
-    "generating-manifest": "Analyzing template & extracting positions...",
-    "generating-component": "Generating drag+resize React component...",
+    "generating-manifest": "Analyzing template & extracting fields...",
+    "generating-component": "Generating React preview component...",
     done: "Generation complete ✓",
+    error: "Generation failed",
   };
 
   return (
     <div style={S.root}>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}} *{box-sizing:border-box}`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } } * { box-sizing: border-box }`}</style>
 
       {/* Header */}
       <header style={S.header}>
@@ -536,7 +528,7 @@ export default function TemplateGenerator() {
           <div style={S.logoIcon}>⚡</div>
           <div>
             <div style={S.logoText}>Template Generator</div>
-            <div style={S.logoSub}>HTML → Manifest + Drag/Resize Component</div>
+            <div style={S.logoSub}>HTML → Manifest + PreviewCard</div>
           </div>
         </div>
         {step === "done" && (
@@ -557,10 +549,11 @@ export default function TemplateGenerator() {
         style={{ height: viewPointHeight - 88, marginBottom: 20 }}
       >
         <div style={S.body}>
-          {/* ── Left: Input ── */}
+          {/* Left: Input */}
           <div style={S.panel}>
             <span style={S.label}>01 — Paste Template Code</span>
 
+            {/* HTML / CSS tab switcher */}
             <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
               {[
                 { key: "html", label: "HTML", color: "#f97316" },
@@ -584,6 +577,7 @@ export default function TemplateGenerator() {
                       inputTab === key
                         ? `1px solid ${color}`
                         : "1px solid transparent",
+                    transition: "all 0.15s",
                   }}
                 >
                   {label}
@@ -606,7 +600,7 @@ export default function TemplateGenerator() {
                 style={S.textarea}
                 value={htmlInput}
                 onChange={(e) => setHtmlInput(e.target.value)}
-                placeholder={`<!doctype html>\n<html>\n  <body>\n    <!-- Your invitation template -->\n  </body>\n</html>`}
+                placeholder={`<!doctype html>\n<html>\n  <body>\n    <!-- Your invitation/card template -->\n  </body>\n</html>`}
                 spellCheck={false}
               />
             )}
@@ -615,7 +609,7 @@ export default function TemplateGenerator() {
                 style={{ ...S.textarea, borderColor: "rgba(6,182,212,0.2)" }}
                 value={cssInput}
                 onChange={(e) => setCssInput(e.target.value)}
-                placeholder={`:root {\n  --bg: #faf6ef;\n  --accent: #8b6843;\n}\n.invitation { ... }`}
+                placeholder={`:root {\n  --bg: #faf6ef;\n  --accent: #8b6843;\n}\n\n.invitation { /* styles */ }`}
                 spellCheck={false}
               />
             )}
@@ -655,6 +649,7 @@ export default function TemplateGenerator() {
                   setStep("idle");
                   setError("");
                 }}
+                disabled={!htmlInput && !cssInput}
               >
                 Clear
               </button>
@@ -682,7 +677,7 @@ export default function TemplateGenerator() {
                       marginLeft: "auto",
                     }}
                   >
-                    {manifest.fields?.length} fields
+                    {manifest.fields?.length} fields extracted
                   </span>
                 )}
               </div>
@@ -694,7 +689,7 @@ export default function TemplateGenerator() {
               </div>
             )}
 
-            {/* Field preview */}
+            {/* Manifest field preview */}
             {manifest && (
               <div style={{ marginTop: 20 }}>
                 <span style={S.label}>
@@ -705,7 +700,7 @@ export default function TemplateGenerator() {
                     display: "flex",
                     flexWrap: "wrap",
                     gap: 6,
-                    maxHeight: 200,
+                    maxHeight: 160,
                     overflowY: "auto",
                   }}
                 >
@@ -720,23 +715,11 @@ export default function TemplateGenerator() {
                         fontSize: 11,
                       }}
                     >
-                      <span style={S.pill(f.group)}>{f.group}</span>
+                      <span style={S.manifestPill(f.group)}>{f.group}</span>
                       <span style={{ color: "#e8e6e0" }}>{f.label}</span>
                       <span style={{ color: "#4b4a48", marginLeft: 5 }}>
                         · {f.type}
                       </span>
-                      {f.position && (
-                        <span
-                          style={{
-                            color: "#5c5a58",
-                            marginLeft: 5,
-                            fontSize: 10,
-                          }}
-                        >
-                          ({f.position.x},{f.position.y}) {f.position.w}×
-                          {f.position.h}
-                        </span>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -744,7 +727,7 @@ export default function TemplateGenerator() {
             )}
           </div>
 
-          {/* ── Right: Output ── */}
+          {/* Right: Output */}
           <div style={S.panelRight}>
             <span style={S.label}>02 — Generated Output</span>
 
@@ -771,7 +754,7 @@ export default function TemplateGenerator() {
                 >
                   Paste an HTML template on the left
                   <br />
-                  and click Generate
+                  and click Generate to extract fields
                 </div>
               </div>
             )}
