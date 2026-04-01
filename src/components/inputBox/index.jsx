@@ -48,7 +48,7 @@ const InputBox = ({ onChange, data, isLoading, onClickAdd }) => {
         />
       </form>
       {data.btnName && (
-        <div className="absolute mt-[-38px] ml-[12.6%] ">
+        <div className="relative mt-[-37px] float-right right-1 ">
           <Button
             className="flex flex-col bg-white text-font-primary px-4 py-[5px] border border-disable_3"
             content={data.btnName}

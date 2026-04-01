@@ -1,23 +1,19 @@
 import React, { useState } from "react";
 import InputBox from "../../../components/inputBox";
-import CategorySelectBox from "../../../components/categorySelectBox";
-import SubCategorySelectBox from "../../../components/subCategorySelectBox";
-import { Progress } from "antd";
 import { App as AntdApp } from "antd";
 import Button from "../../../components/button";
 import { CheckValidity } from "../../../utils/formValidity";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { AddIcon } from "../../../config/icon";
+import { createNewCategory } from "./service/category.service";
 
 const CreateNewCategory = () => {
   const { notification } = AntdApp.useApp();
   const [isLoading, setIsLoading] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [subCategoryList, setSubCategoryList] = useState([]);
 
   const dispatch = useDispatch();
-  const { isOpenGenerateFileModal, fileData } = useSelector(
-    ({ templateReducer }) => templateReducer,
-  );
 
   const [formData, setFormData] = useState({
     categoryName: {
@@ -58,9 +54,7 @@ const CreateNewCategory = () => {
   });
 
   const handleChange = async (event, inputIdentity) => {
-    const updateForm = {
-      ...formData,
-    };
+    const updateForm = { ...formData };
 
     updateForm[inputIdentity].value = event;
     let validityRes = await CheckValidity(
@@ -74,79 +68,100 @@ const CreateNewCategory = () => {
       updateForm[inputIdentity].invalidReason = validityRes.reason;
       updateForm[inputIdentity].value = event;
       updateForm[inputIdentity].touched = true;
-      console.log("required_validation", validityRes);
 
       let formIsValid = false;
       for (let inputIdentifier in updateForm) {
         formIsValid = updateForm[inputIdentifier].valid && formIsValid;
       }
-      console.log("formIsValid", formIsValid);
+
       setFormData(updateForm);
     }
   };
 
   const clearAll = () => {
-    const updateForm = {
-      ...formData,
-    };
+    const updateForm = { ...formData };
     for (let key in updateForm) {
-      console.log(updateForm[key]);
       updateForm[key].value = "";
       updateForm[key].isValid = false;
       updateForm[key].touched = false;
     }
-    // categorySelect([]);
+    setSubCategoryList([]);
 
     setFormData(updateForm);
   };
 
-  // const onClickSave = async () => {
-  //   setIsLoading(true);
-  //   setIsButtonDisabled(true);
+  const onClickSave = async () => {
+    setIsLoading(true);
 
-  //   const updateForm = {
-  //     ...formData,
-  //   };
+    const updateForm = { ...formData };
 
-  //   try {
+    try {
+      const response = await createNewCategory({
+        category_name: updateForm.categoryName.value,
+        sub_category: subCategoryList,
+      });
+      console.log("response", response);
 
-  //     const response = await createNewTemplate({
-  //       template_name: updateForm.templateName.value,
-  //       category_id: updateForm.category.value,
-  //       sub_category_id: updateForm.subCategory.value,
-  //     });
-  //     console.log("response", response);
+      if (response?.data?.status) {
+        notification.success({
+          message: "Success",
+          description: "Category Create Successfully!",
+          placement: "topRight",
+          duration: 4,
+        });
 
-  //     if (response?.data?.data) {
-  //       const jobId = response?.data?.data?.job_id;
-  //       if (!jobId) return;
+        clearAll();
+      } else {
+        notification.error({
+          message: "Error",
+          description: response?.data?.message || "Category Create Failed!",
+          placement: "topRight",
+          duration: 4,
+        });
+      }
+    } catch (error) {
+      console.log("Error ===", error);
+      notification.error({
+        message: "Error",
+        description: "Template Create Failed!",
+        placement: "topRight",
+        duration: 4,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  //       notification.success({
-  //         message: "Success",
-  //         description: "Template Create Successfully!",
-  //         placement: "topRight",
-  //         duration: 4,
-  //       });
-
-  //       setIsLoading(false);
-  //       setIsButtonDisabled(false);
-
-  //       clearAll();
-  //     }
-
-  //     console.log("Success");
-  //   } catch (error) {
-  //     console.log("Error ===", error);
-  //     notification.error({
-  //       message: "Error",
-  //       description: "Template Create Failed!",
-  //       placement: "topRight",
-  //       duration: 4,
-  //     });
-  //     setIsLoading(false);
-  //     setIsButtonDisabled(false);
-  //   }
-  // };
+  const onClickAdd = async () => {
+    const updateForm = { ...formData };
+    if (updateForm.subCategory.value !== "") {
+      let item = {
+        sub_category_id: Math.random().toString(36).substring(2, 12),
+        sub_category_name: updateForm.subCategory.value,
+      };
+      if (subCategoryList.length > 0) {
+        const isExist = subCategoryList.some(
+          (sub) =>
+            sub.sub_category_name.toLowerCase() ===
+            item.sub_category_name.toLowerCase(),
+        );
+        if (isExist) {
+          notification.error({
+            message: "Error",
+            description: "Sub Category already exists!",
+            placement: "topRight",
+            duration: 4,
+          });
+          return;
+        }
+      }
+      setSubCategoryList((prev) => [...prev, item]);
+      updateForm.subCategory.value = "";
+      updateForm.subCategory.isValid = false;
+      updateForm.subCategory.touched = false;
+      setFormData(updateForm);
+    }
+  };
 
   const updateForm = { ...formData };
   return (
@@ -169,28 +184,49 @@ const CreateNewCategory = () => {
             e.preventDefault();
             await handleChange(e.target.value, updateForm.subCategory.key);
           }}
-          onClickAdd={""}
+          onClickAdd={onClickAdd}
         />
+        <div className="flex flex-row gap-2 flex-wrap">
+          {subCategoryList.map((item, index) => (
+            <div
+              key={index}
+              className="flex flex-row gap-1 items-center bg-border-deafult text-font-default px-3 py-1 rounded-full"
+            >
+              <span>{item?.sub_category_name}</span>
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  setSubCategoryList((prev) =>
+                    prev.filter((subItem) => subItem !== item),
+                  );
+                }}
+              >
+                {AddIcon("cross")}
+              </span>
+            </div>
+          ))}
+        </div>
 
         <Button
           content="Done"
           className={
-            updateForm.categoryName.value !== "" ||
-            updateForm.subCategory.value !== ""
+            updateForm.categoryName.value !== "" && subCategoryList.length > 0
               ? "text-white bg-black"
               : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
           }
           isActive={
-            updateForm.categoryName.value !== "" ||
-            updateForm.subCategory.value !== ""
+            updateForm.categoryName.value !== "" && subCategoryList.length > 0
               ? "text-white bg-black"
               : "bg-border-deafult text-disable hover:bg-border-deafult hover:text-disable cursor-default"
           }
+          disabled={
+            updateForm.categoryName.value === "" &&
+            updateForm.subCategory.value === ""
+          }
           isLoading={isLoading}
-          onClick={async (e) => {
+          onClick={async () => {
             setIsLoading(true);
-            e.preventDefault();
-            // await onClickSave(e);
+            await onClickSave();
           }}
         />
       </div>

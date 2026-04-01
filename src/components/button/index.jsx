@@ -2,15 +2,16 @@ import React from "react";
 
 const Button = (props) => {
   return (
-    <div
-      className={`flex flex-row items-center justify-center w-full  rounded-sm font-manrope cursor-pointer  text-md gap-2 font-bold p-3 hover:text-white hover:bg-bg_1   ${props.className} ${props.isActive} `}
+    <button
+      className={`flex flex-row items-center justify-center w-full rounded-sm font-manrope gap-2 font-bold p-3  ${props.className} ${props.isActive} ${props.disabled ? "cursor-not-allowed hover:bg-border-deafult hover:text-disable" : "cursor-pointer text-md hover:text-white hover:bg-bg_1 "} `}
       type={props.type}
+      disabled={props.disabled}
       onClick={props.onClick}
     >
       {!props.isLoading && (
         <>
           <>{props.icon}</>
-          <div className="cursor-pointer ">{props.content}</div>{" "}
+          <>{props.content}</>{" "}
         </>
       )}
       {props.isLoading && (
@@ -38,7 +39,7 @@ const Button = (props) => {
           <span className="ml-2 text-sm text-gray-500">Loading...</span>
         </div>
       )}
-    </div>
+    </button>
   );
 };
 
