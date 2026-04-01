@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import Button from "../button";
 
-const InputBox = ({ onChange, data }) => {
+const InputBox = ({ onChange, data, isLoading, onClickAdd }) => {
   const [passwordShown, setPasswordShown] = useState(false);
   const [passwordLength, setPasswordLength] = useState(false);
   const [hasNumber, setHasNumber] = useState(false);
@@ -29,7 +30,7 @@ const InputBox = ({ onChange, data }) => {
     <>
       <form autoComplete="off">
         <input
-          className={` w-full p-1 rounded-x_sm border-x_sm border-border-secondary bg-white text-md text-black font-manrope ${
+          className={`w-full px-4 py-2 rounded-x_sm border-x_sm border-border-secondary bg-white text-md text-black font-manrope hover:outline-1 hover:outline-font-primary focus:outline-1 focus:outline-font-primary ${
             data?.size
           } 
             ${
@@ -46,6 +47,16 @@ const InputBox = ({ onChange, data }) => {
           onChange={onChange && handleChange}
         />
       </form>
+      {data.btnName && (
+        <div className="absolute mt-[-38px] ml-[12.6%] ">
+          <Button
+            className="flex flex-col bg-white text-font-primary px-4 py-[5px] border border-disable_3"
+            content={data.btnName}
+            isLoading={isLoading}
+            onClick={onClickAdd}
+          />
+        </div>
+      )}
     </>
   );
 
@@ -58,7 +69,7 @@ const InputBox = ({ onChange, data }) => {
           </label>
         </div>
       )}
-      <div className="w-full">{inputElement}</div>
+      <div className="w-full ">{inputElement}</div>
       {/*---- error goes here -----*/}
       {data && data.validation && data.validation.required && data.touched && (
         <>

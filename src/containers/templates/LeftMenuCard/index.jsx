@@ -28,8 +28,13 @@ const Index = (props) => {
             <MenuButtonCard
               icon={AddIcon("fourCircles")}
               content={"Category"}
-              onClick={() => setMenuName("Category")}
+              isActive={location.pathname.includes("/category")}
+              onClick={() => {
+                props.history.push("/category");
+                setMenuName("Category");
+              }}
             />
+
             <MenuButtonCard
               icon={AddIcon("layout")}
               content={"Template"}

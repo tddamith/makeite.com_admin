@@ -7,6 +7,7 @@ import { validateToken } from "../signIn/service/auth.service";
 import { getTokenRefresh, login } from "../../utils/auth";
 import { CreateStore, ViewStore } from "../store";
 import Media from "../media";
+import Category from "../categoryPage";
 
 const Admin = (props) => {
   const { location } = props;
@@ -42,6 +43,11 @@ const Admin = (props) => {
         <LeftMenuCard />
 
         <div className="ml-[250px] ">
+          {location.pathname === "/category" && (
+            <>
+              <Category />
+            </>
+          )}
           {location.pathname === "/templates" && (
             <>
               <Template />

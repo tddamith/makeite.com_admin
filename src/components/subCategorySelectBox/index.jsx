@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 
 import DropBox from "../dropBox";
-import { getAllSubCategoryByCategoryId } from "../../containers/createNewItem/createNewTemplate/service/category.service";
+
 import Tag from "../tag";
+import { getAllSubCategoryByCategoryId } from "../../containers/createNewItem/createNewCategory/service/category.service";
 
 const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
   const [selectData, setSelectData] = useState("");
@@ -42,7 +43,7 @@ const SubCategorySelectBox = ({ data, onChangeSubCategory }) => {
 
       if (data?.sub_category_id) {
         const selected = categoryList?.find(
-          (w) => w.id === data.sub_category_id
+          (w) => w.id === data.sub_category_id,
         );
         console.log(selected);
         if (selected) {

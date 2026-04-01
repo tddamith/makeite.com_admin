@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import DropBox from "../dropBox";
-import { getAllCategory } from "../../containers/createNewItem/createNewTemplate/service/category.service";
+
 import Tag from "../tag";
+import { getAllCategory } from "../../containers/createNewItem/createNewCategory/service/category.service";
 
 const CategorySelectBox = ({ data, onChangeCategory }) => {
   const [categoryList, setCategoryList] = useState("");

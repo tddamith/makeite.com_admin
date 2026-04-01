@@ -1,0 +1,42 @@
+import React, { useState } from "react";
+import FormHeader from "../../components/formHeader";
+import ToggleButton from "../../components/toggleButton";
+import TemplateViewPage from "../templateViewPage";
+import CreateNewCategory from "../createNewItem/createNewCategory";
+
+const Category = () => {
+  const [selectedOption, setSelectedOption] = useState("Create new");
+
+  const handleToggle = (selected) => {
+    setSelectedOption(selected);
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div className="p-6 border-b border-border-primary flex flex-row align-center justify-between">
+        <FormHeader title="Category" />
+
+        <div className="flex justify-center w-full">
+          <ToggleButton
+            options={["Create new", "View all"]}
+            defaultActive={0}
+            activeColor="bg-black text-white shadow"
+            inactiveColor="text-black"
+            onChange={handleToggle}
+          />
+        </div>
+      </div>
+
+      {selectedOption === "Create new" ? (
+        <div className="mt-8 justify-center flex ml-16">
+          <CreateNewCategory />
+        </div>
+      ) : (
+        <TemplateViewPage />
+        // <div className="text-gray-400">No Details Available.</div>
+      )}
+    </div>
+  );
+};
+
+export default Category;
