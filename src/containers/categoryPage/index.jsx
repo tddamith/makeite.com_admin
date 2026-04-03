@@ -3,6 +3,7 @@ import FormHeader from "../../components/formHeader";
 import ToggleButton from "../../components/toggleButton";
 import TemplateViewPage from "../templateViewPage";
 import CreateNewCategory from "../createNewItem/createNewCategory";
+import CategoryViewPage from "../categoryViewPage";
 
 const Category = () => {
   const [selectedOption, setSelectedOption] = useState("Create new");
@@ -32,7 +33,7 @@ const Category = () => {
           <CreateNewCategory />
         </div>
       ) : (
-        <TemplateViewPage />
+        <CategoryViewPage />
         // <div className="text-gray-400">No Details Available.</div>
       )}
     </div>
