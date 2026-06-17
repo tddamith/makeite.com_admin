@@ -16,7 +16,7 @@ async function callClaude(systemPrompt, userPrompt) {
       "anthropic-dangerous-direct-browser-access": "true",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 8000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
@@ -78,114 +78,266 @@ FIELD RULES:
 Output ONLY the JSON object, nothing else.`;
 
 // ─── COMPONENT SYSTEM PROMPT ─────────────────────────────────────────────────
-const COMPONENT_SYSTEM = `You are a React JSX generator. Given an HTML/CSS invitation template and its manifest JSON, generate JSX for the InvitationTemplate component.
+// const COMPONENT_SYSTEM = `You are a React JSX generator. Given an HTML/CSS invitation template and its manifest JSON, generate JSX for the InvitationTemplate component.
 
-The client-side InvitationTemplate has this EXACT Editable component available in scope:
+// The client-side InvitationTemplate has this EXACT Editable component available in scope:
 
-\`\`\`
-// Editable uses react-rnd for drag + resize when editorMode is true
-// positions[fieldId] = { x, y, w, h } — seeded from manifest.fields[].position
-const Editable = ({ fieldId, tag: Tag = "span", style }) => {
-  const isEdit = editorMode;
-  const pos = positions[fieldId] || { x: 0, y: 0, w: 200, h: 40 };
-  return (
-    <Rnd
-      position={{ x: pos.x, y: pos.y }}
-      size={{ width: pos.w, height: pos.h }}
-      disableDragging={!isEdit}
-      enableResizing={isEdit ? { bottom:true, bottomRight:true, right:true } : false}
-      bounds="parent"
-      onDragStop={(e, d) => updatePosition(fieldId, { ...pos, x: d.x, y: d.y })}
-      onResizeStop={(e, dir, ref, delta, position) =>
-        updatePosition(fieldId, { x: position.x, y: position.y, w: parseInt(ref.style.width), h: parseInt(ref.style.height) })
-      }
-      style={{ position: "absolute", zIndex: 5 }}
-    >
+// \`\`\`
+// // Editable uses react-rnd for drag + resize when editorMode is true
+// // positions[fieldId] = { x, y, w, h } — seeded from manifest.fields[].position
+// const Editable = ({ fieldId, tag: Tag = "span", style }) => {
+//   const isEdit = editorMode;
+//   const pos = positions[fieldId] || { x: 0, y: 0, w: 200, h: 40 };
+//   return (
+//     <Rnd
+//       position={{ x: pos.x, y: pos.y }}
+//       size={{ width: pos.w, height: pos.h }}
+//       disableDragging={!isEdit}
+//       enableResizing={isEdit ? { bottom:true, bottomRight:true, right:true } : false}
+//       bounds="parent"
+//       onDragStop={(e, d) => updatePosition(fieldId, { ...pos, x: d.x, y: d.y })}
+//       onResizeStop={(e, dir, ref, delta, position) =>
+//         updatePosition(fieldId, { x: position.x, y: position.y, w: parseInt(ref.style.width), h: parseInt(ref.style.height) })
+//       }
+//       style={{ position: "absolute", zIndex: 5 }}
+//     >
+//       <Tag
+//         contentEditable={isEdit}
+//         suppressContentEditableWarning
+//         data-field={fieldId}
+//         style={{
+//           ...style,
+//           width: "100%", height: "100%",
+//           outline: "none",
+//           cursor: isEdit ? "move" : "default",
+//           display: "block", boxSizing: "border-box",
+//           border: isEdit ? "1.5px dashed rgba(190,23,250,0.5)" : "none",
+//         }}
+//         onBlur={(e) => { if (isEdit) updateField(fieldId, e.target.innerText); }}
+//         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.target.blur(); } }}
+//       >
+//         {data[fieldId]}
+//       </Tag>
+//     </Rnd>
+//   );
+// };
+// \`\`\`
+
+// GENERATE ONLY the JSX return value — starting with <div ref={previewRef} style={cardStyle}>.
+
+// Available variables in scope (already defined, DO NOT redefine):
+// - data         — field values object, keyed by field id
+// - accent       — data.accent_color || "#8b6843"
+// - bg           — data.bg_color || "#faf6ef"
+// - dark         — data.text_dark || "#2a1f14"
+// - font         — data.font_family || "Cormorant Garamond"
+// - cardW, cardH — card dimensions in px
+// - cardStyle    — { width:cardW, height:cardH, transform:scale, position:"relative", overflow:"hidden", background:bg, fontFamily:font, ... }
+// - editorMode   — boolean
+// - previewRef   — ref for root div
+// - positions    — object: fieldId → { x, y, w, h } seeded from manifest
+// - updatePosition — fn(fieldId, {x,y,w,h})
+// - updateField  — fn(fieldId, value)
+// - Editable     — drag+resize component (described above)
+// - Rnd          — from react-rnd (already in scope, used by Editable internally)
+
+// STRICT Z-INDEX LAYERING — FOUR LEVELS, NO EXCEPTIONS:
+
+// The card root div has its own background color (e.g. dark purple). All absolute children stack
+// on top of that background. The levels from bottom to top are:
+
+//   zIndex:2  — Decorative <img> tags (florals, roses, corners, watercolors, borders, ANY image)
+//               These sit ON TOP of the card background color but BELOW text.
+//               opacity:0.55, position:"absolute", pointerEvents:"none"
+
+//   zIndex:3  — Non-image structural decorations (<div> borders, SVG ornaments, dividers)
+//               opacity:1, position:"absolute", pointerEvents:"none"
+
+//   zIndex:5  — ALL <Editable> text fields (set automatically by Rnd — do NOT override)
+//               opacity:1, always fully visible
+
+// CRITICAL RULES:
+// - position:"absolute" is MANDATORY on every <img> — without it the image joins normal
+//   document flow and stretches the card height. No exceptions.
+// - NEVER set any <img> to zIndex:0 or zIndex:1 — it will disappear behind the card background
+// - NEVER apply opacity to any element that contains text or wraps an Editable
+// - NEVER include opacity in Editable style prop
+
+// LAYER SUMMARY:
+//   <img> tags   → position:"absolute", zIndex:2, opacity:0.55, pointerEvents:"none"
+//   <div>/<svg>  → position:"absolute", zIndex:3, opacity:1,    pointerEvents:"none"
+//   <Editable>   → zIndex:5 (automatic),          opacity:1
+
+// RULES:
+// 1. Root element MUST be: <div ref={previewRef} style={cardStyle}>
+// 2. The root div already has position:"relative" and overflow:"hidden" in cardStyle — do NOT add them again
+// 3. ALL Editable elements are positioned absolutely by Rnd internally — do NOT wrap them in position:absolute containers
+// 4. For every text field in the manifest: use <Editable fieldId="field_id" tag="h1|h2|p|span" style={{ typography styles only }} />
+//    - style prop: ONLY include typography/visual styles: fontSize, color, fontWeight, fontStyle, textAlign, letterSpacing, lineHeight, textTransform, fontFamily
+//    - NEVER include opacity, position, top, left, right, bottom, width, height, transform in Editable style
+//    - NEVER wrap an Editable in a container that has opacity set — Rnd handles all positioning
+// 5. Static decorative non-image elements (borders, dividers, SVGs): style={{ position:"absolute", zIndex:3, pointerEvents:"none", ... }} — NO opacity reduction
+// 6. Decorative template images: style={{ position:"absolute", top:N, left:N, width:N, height:N, zIndex:2, opacity:0.55, pointerEvents:"none" }}
+// 7. User-uploadable image fields: {data.image_field_id && <img src={data.image_field_id} style={{ position:"absolute", top:N, left:N, width:N, height:N, objectFit:"cover", zIndex:2, opacity:0.55, pointerEvents:"none" }} />}
+// 8. Convert CSS var(--x) → JS variables: --accent→accent, --bg→bg, --dark→dark, --font→font
+// 9. Recreate the FULL visual design faithfully — all decorative layers, backgrounds, borders
+// 10. Do NOT use scale or transform anywhere
+// 11. Do NOT output markdown fences, backticks, or any explanation — ONLY raw JSX
+// 12. Do NOT end the JSX with a semicolon
+// 13. Static text not in manifest ("·", "&" etc.) → plain <span style={{ position:"absolute", zIndex:1, ...positional styles }}> — not Editable, NO opacity reduction
+// 14. The generated JSX will be compiled with Babel at runtime and injected — it must be valid JSX`;
+
+const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the SECOND return() of this existing function (the JSX fallback path — NOT the dangerouslySetInnerHTML path).
+
+Here is the full function you are generating FOR:
+
+\`\`\`jsx
+function InvitationTemplate({
+  scale = 1,
+  previewRef,
+  elements,
+  css,
+  manifest,
+  assetBaseUrl,
+}) {
+  const { data, editorMode, updateField } = useTemplate();
+  const containerRef = useRef();
+
+  const accent = data.accent_color || "#8b6843";
+  const bg     = data.bg_color     || "#faf6ef";
+  const dark   = data.text_dark    || "#2a1f14";
+  const font   = data.font_family  || "Cormorant Garamond";
+
+  const cardW = manifest?.size?.width  || 600;
+  const cardH = manifest?.size?.height || 840;
+
+  const Editable = ({ fieldId, tag: Tag = "span", style, className }) => {
+    const isEdit = editorMode;
+    return (
       <Tag
         contentEditable={isEdit}
         suppressContentEditableWarning
         data-field={fieldId}
         style={{
           ...style,
-          width: "100%", height: "100%",
           outline: "none",
-          cursor: isEdit ? "move" : "default",
-          display: "block", boxSizing: "border-box",
-          border: isEdit ? "1.5px dashed rgba(190,23,250,0.5)" : "none",
+          cursor: isEdit ? "text" : "default",
+          transition: "box-shadow 0.15s",
+          borderRadius: 2,
         }}
-        onBlur={(e) => { if (isEdit) updateField(fieldId, e.target.innerText); }}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.target.blur(); } }}
+        className={className}
+        onFocus={(e) => {
+          if (isEdit) e.target.style.boxShadow = \`0 0 0 1.5px \${accent}55\`;
+        }}
+        onBlur={(e) => {
+          if (isEdit) {
+            e.target.style.boxShadow = "none";
+            updateField(fieldId, e.target.innerText);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.target.blur();
+          }
+        }}
       >
         {data[fieldId]}
       </Tag>
-    </Rnd>
+    );
+  };
+
+  const resolvedHtml = elements ? resolvePlaceholders(elements, data) : null;
+  const resolvedCss  = css
+    ? resolveAssetPaths(resolvePlaceholders(css, data), assetBaseUrl || window.location.origin + "/")
+    : null;
+
+  useEffect(() => { /* syncs data-field DOM nodes */ }, []);
+
+  const cardStyle = {
+    width: cardW,
+    height: cardH,
+    transform: \`scale(\${scale})\`,
+    transformOrigin: "top left",
+    position: "relative",
+    overflow: "hidden",
+    boxShadow: "0 40px 100px rgba(0,0,0,0.22)",
+    flexShrink: 0,
+    background: bg,
+    zIndex: 0,
+    fontFamily: \`'\${font}', serif\`,
+  };
+
+  // PATH 1 — HTML string from zip. Already complete. Do NOT generate for this.
+  if (resolvedHtml) {
+    return (
+      <div ref={previewRef} style={cardStyle}>
+        {resolvedCss && <style>{resolvedCss}</style>}
+        <div
+          ref={containerRef}
+          dangerouslySetInnerHTML={{ __html: resolvedHtml }}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+    );
+  }
+
+  // PATH 2 — JSX fallback. THIS is what you generate.
+  return (
+    // ← YOUR GENERATED JSX GOES HERE
   );
-};
+}
 \`\`\`
 
-GENERATE ONLY the JSX return value — starting with <div ref={previewRef} style={cardStyle}>.
+IMPORTANT: You are generating ONLY the content for PATH 2 — the JSX fallback return().
+PATH 1 (dangerouslySetInnerHTML) is already complete. Do not generate anything for it.
 
-Available variables in scope (already defined, DO NOT redefine):
-- data         — field values object, keyed by field id
-- accent       — data.accent_color || "#8b6843"
-- bg           — data.bg_color || "#faf6ef"  
-- dark         — data.text_dark || "#2a1f14"
-- font         — data.font_family || "Cormorant Garamond"
-- cardW, cardH — card dimensions in px
-- cardStyle    — { width:cardW, height:cardH, transform:scale, position:"relative", overflow:"hidden", background:bg, fontFamily:font, ... }
-- editorMode   — boolean
-- previewRef   — ref for root div
-- positions    — object: fieldId → { x, y, w, h } seeded from manifest
-- updatePosition — fn(fieldId, {x,y,w,h})
-- updateField  — fn(fieldId, value)
-- Editable     — drag+resize component (described above)
-- Rnd          — from react-rnd (already in scope, used by Editable internally)
+Available variables in scope (all already defined, do not redefine):
+- data        — object with all field values keyed by manifest field ids
+- accent      — string, from data.accent_color
+- bg          — string, from data.bg_color
+- dark        — string, from data.text_dark
+- font        — string, from data.font_family
+- cardW       — number, card width in px
+- cardH       — number, card height in px
+- cardStyle   — object with width, height, scale transform, bg, fontFamily already set
+- editorMode  — boolean
+- previewRef  — ref, must be on the root div
+- scale       — number (already inside cardStyle — do NOT use it again)
+- Editable    — component: <Editable fieldId="..." tag="p" style={{...}} />
 
-STRICT Z-INDEX LAYERING — FOUR LEVELS, NO EXCEPTIONS:
+POSITIONING RULES (CRITICAL — incorrect positioning is the most common failure):
+- cardStyle already sets position: "relative" with fixed pixel dimensions cardW × cardH
+- Use position: "absolute" with explicit top, left (in px) for ALL child elements
+- Derive every coordinate by carefully reading the original HTML/CSS layout
+- NEVER rely on normal document flow — do not stack divs without position: "absolute"
+- NEVER use margin: "auto" alone for centering — it does not work inside a fixed-height relative container
+- To center an element horizontally: set left: 0, width: "100%", textAlign: "center"
+  OR set left: "50%", transform: "translateX(-50%)"
+- To center an element vertically: calculate an explicit top px value from the original layout
+- If the original uses flexbox or grid, convert every item to position: "absolute" with explicit coords
+- Convert percentage-based positions: e.g. top: "30%" → top: cardH * 0.3, left: "50%" → left: cardW * 0.5
+- Full-bleed layers (background image, pattern overlay, color wash): always
+  position: "absolute", top: 0, left: 0, width: "100%", height: "100%"
+- transform: scale() must NEVER appear on any child element — scale is already handled by cardStyle
 
-The card root div has its own background color (e.g. dark purple). All absolute children stack
-on top of that background. The levels from bottom to top are:
+OUTPUT RULES:
+1. Output ONLY the JSX starting with the root <div> — no imports, no exports, no function wrappers
+2. Root <div> MUST be: <div ref={previewRef} style={cardStyle}>
+3. Do NOT redefine or override width, height, transform, scale, background, or fontFamily on the root div — they are already in cardStyle
+4. Do NOT add transform or scale anywhere in the output
+5. Use inline styles only — no Tailwind, no CSS class names
+6. Use <Editable fieldId="field_id" tag="tagname" style={{...}} /> for EVERY text field in the manifest — never hardcode the text value
+7. For color/font fields — already applied via accent/bg/dark/font variables, use those in styles
+8. For image fields — render conditionally: {data.image_field_id && <img src={data.image_field_id} alt="..." style={{...}} />}
+9. Recreate the full visual design from the HTML/CSS faithfully using inline React styles
+10. Convert CSS var(--x) to the matching JS variable (accent/bg/dark/font); for any unmatched vars, inline the resolved hex/value directly
+11. Static decorative elements (borders, ornaments, dividers, SVGs) are fine as plain JSX — they do not need Editable
+12. Do NOT output markdown fences, backticks, or any explanation — raw JSX only
+13. Do NOT add any "click to edit" hint UI
+14. Do NOT add a semicolon after the closing root </div> tag — the JSX expression must not end with a semicolon
 
-  zIndex:2  — Decorative <img> tags (florals, roses, corners, watercolors, borders, ANY image)
-              These sit ON TOP of the card background color but BELOW text.
-              opacity:0.55, position:"absolute", pointerEvents:"none"
-
-  zIndex:3  — Non-image structural decorations (<div> borders, SVG ornaments, dividers)
-              opacity:1, position:"absolute", pointerEvents:"none"
-
-  zIndex:5  — ALL <Editable> text fields (set automatically by Rnd — do NOT override)
-              opacity:1, always fully visible
-
-CRITICAL RULES:
-- position:"absolute" is MANDATORY on every <img> — without it the image joins normal
-  document flow and stretches the card height. No exceptions.
-- NEVER set any <img> to zIndex:0 or zIndex:1 — it will disappear behind the card background
-- NEVER apply opacity to any element that contains text or wraps an Editable
-- NEVER include opacity in Editable style prop
-
-LAYER SUMMARY:
-  <img> tags   → position:"absolute", zIndex:2, opacity:0.55, pointerEvents:"none"
-  <div>/<svg>  → position:"absolute", zIndex:3, opacity:1,    pointerEvents:"none"
-  <Editable>   → zIndex:5 (automatic),          opacity:1
-
-RULES:
-1. Root element MUST be: <div ref={previewRef} style={cardStyle}>
-2. The root div already has position:"relative" and overflow:"hidden" in cardStyle — do NOT add them again
-3. ALL Editable elements are positioned absolutely by Rnd internally — do NOT wrap them in position:absolute containers
-4. For every text field in the manifest: use <Editable fieldId="field_id" tag="h1|h2|p|span" style={{ typography styles only }} />
-   - style prop: ONLY include typography/visual styles: fontSize, color, fontWeight, fontStyle, textAlign, letterSpacing, lineHeight, textTransform, fontFamily
-   - NEVER include opacity, position, top, left, right, bottom, width, height, transform in Editable style
-   - NEVER wrap an Editable in a container that has opacity set — Rnd handles all positioning
-5. Static decorative non-image elements (borders, dividers, SVGs): style={{ position:"absolute", zIndex:3, pointerEvents:"none", ... }} — NO opacity reduction
-6. Decorative template images: style={{ position:"absolute", top:N, left:N, width:N, height:N, zIndex:2, opacity:0.55, pointerEvents:"none" }}
-7. User-uploadable image fields: {data.image_field_id && <img src={data.image_field_id} style={{ position:"absolute", top:N, left:N, width:N, height:N, objectFit:"cover", zIndex:2, opacity:0.55, pointerEvents:"none" }} />}
-8. Convert CSS var(--x) → JS variables: --accent→accent, --bg→bg, --dark→dark, --font→font
-9. Recreate the FULL visual design faithfully — all decorative layers, backgrounds, borders
-10. Do NOT use scale or transform anywhere
-11. Do NOT output markdown fences, backticks, or any explanation — ONLY raw JSX
-12. Do NOT end the JSX with a semicolon
-13. Static text not in manifest ("·", "&" etc.) → plain <span style={{ position:"absolute", zIndex:1, ...positional styles }}> — not Editable, NO opacity reduction
-14. The generated JSX will be compiled with Babel at runtime and injected — it must be valid JSX`;
+Output ONLY the raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function TemplateGenerator() {

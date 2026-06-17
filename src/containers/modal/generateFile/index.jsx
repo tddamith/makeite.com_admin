@@ -69,6 +69,145 @@ Rules:
 - "styles" array for text fields: include from ["color","fontSize","fontFamily"] as appropriate
 - Output ONLY the JSON, nothing else`;
 
+// const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the SECOND return() of this existing function (the JSX fallback path — NOT the dangerouslySetInnerHTML path).
+
+// Here is the full function you are generating FOR:
+
+// \`\`\`jsx
+// function InvitationTemplate({
+//   scale = 1,
+//   previewRef,
+//   elements,
+//   css,
+//   manifest,
+//   assetBaseUrl,
+// }) {
+//   const { data, editorMode, updateField } = useTemplate();
+//   const containerRef = useRef();
+
+//   const accent = data.accent_color || "#8b6843";
+//   const bg     = data.bg_color     || "#faf6ef";
+//   const dark   = data.text_dark    || "#2a1f14";
+//   const font   = data.font_family  || "Cormorant Garamond";
+
+//   const cardW = manifest?.size?.width  || 600;
+//   const cardH = manifest?.size?.height || 840;
+
+//   const Editable = ({ fieldId, tag: Tag = "span", style, className }) => {
+//     const isEdit = editorMode;
+//     return (
+//       <Tag
+//         contentEditable={isEdit}
+//         suppressContentEditableWarning
+//         data-field={fieldId}
+//         style={{
+//           ...style,
+//           outline: "none",
+//           cursor: isEdit ? "text" : "default",
+//           transition: "box-shadow 0.15s",
+//           borderRadius: 2,
+//         }}
+//         className={className}
+//         onFocus={(e) => {
+//           if (isEdit) e.target.style.boxShadow = \`0 0 0 1.5px \${accent}55\`;
+//         }}
+//         onBlur={(e) => {
+//           if (isEdit) {
+//             e.target.style.boxShadow = "none";
+//             updateField(fieldId, e.target.innerText);
+//           }
+//         }}
+//         onKeyDown={(e) => {
+//           if (e.key === "Enter") {
+//             e.preventDefault();
+//             e.target.blur();
+//           }
+//         }}
+//       >
+//         {data[fieldId]}
+//       </Tag>
+//     );
+//   };
+
+//   const resolvedHtml = elements ? resolvePlaceholders(elements, data) : null;
+//   const resolvedCss  = css
+//     ? resolveAssetPaths(resolvePlaceholders(css, data), assetBaseUrl || window.location.origin + "/")
+//     : null;
+
+//   useEffect(() => { /* syncs data-field DOM nodes */ }, []);
+
+//   const cardStyle = {
+//     width: cardW,
+//     height: cardH,
+//     transform: \`scale(\${scale})\`,
+//     transformOrigin: "top left",
+//     position: "relative",
+//     overflow: "hidden",
+//     boxShadow: "0 40px 100px rgba(0,0,0,0.22)",
+//     flexShrink: 0,
+//     background: bg,
+//     zIndex: 0,
+//     fontFamily: \`'\${font}', serif\`,
+//   };
+
+//   // PATH 1 — HTML string from zip. Already complete. Do NOT generate for this.
+//   if (resolvedHtml) {
+//     return (
+//       <div ref={previewRef} style={cardStyle}>
+//         {resolvedCss && <style>{resolvedCss}</style>}
+//         <div
+//           ref={containerRef}
+//           dangerouslySetInnerHTML={{ __html: resolvedHtml }}
+//           style={{ width: "100%", height: "100%" }}
+//         />
+//       </div>
+//     );
+//   }
+
+//   // PATH 2 — JSX fallback. THIS is what you generate.
+//   return (
+//     // ← YOUR GENERATED JSX GOES HERE
+//   );
+// }
+// \`\`\`
+
+// IMPORTANT: You are generating ONLY the content for PATH 2 — the JSX fallback return().
+// PATH 1 (dangerouslySetInnerHTML) is already complete. Do not generate anything for it.
+
+// Available variables in scope (all already defined, do not redefine):
+// - data        — object with all field values keyed by manifest field ids
+// - accent      — string, from data.accent_color
+// - bg          — string, from data.bg_color
+// - dark        — string, from data.text_dark
+// - font        — string, from data.font_family
+// - cardW       — number, card width in px
+// - cardH       — number, card height in px
+// - cardStyle   — object with width, height, scale transform, bg, fontFamily already set
+// - editorMode  — boolean
+// - previewRef  — ref, must be on the root div
+// - scale       — number (already inside cardStyle — do NOT use it again)
+// - Editable    — component: <Editable fieldId="..." tag="p" style={{...}} />
+
+// Rules:
+// 1. Output ONLY the JSX starting with the root <div> — no imports, no exports, no function wrappers
+// 2. Root <div> MUST be: <div ref={previewRef} style={cardStyle}>
+// 3. Do NOT redefine or override width, height, transform, scale, background, or fontFamily on the root div — they are already in cardStyle
+// 4. Do NOT add transform or scale anywhere in the output
+// 5. Use inline styles only — no Tailwind, no CSS class names
+// 6. Use <Editable fieldId="field_id" tag="tagname" style={{...}} /> for EVERY text field in the manifest — never hardcode the text value
+// 7. For color/font fields — already applied via accent/bg/dark/font variables, use those in styles
+// 8. For image fields — render conditionally: {data.image_field_id && <img src={data.image_field_id} alt="..." style={{...}} />}
+// 9. Recreate the full visual design from the HTML/CSS faithfully using inline React styles
+// 10. Convert CSS var(--x) to the matching JS variable (accent/bg/dark/font); for unmatched vars, inline the resolved hex/value
+// 11. Static decorative elements (borders, ornaments, dividers, SVGs) are fine as plain JSX — they do not need Editable
+// 12. Do NOT output markdown fences, backticks, or any explanation — raw JSX only
+// 13. Do NOT add any "click to edit" hint UI
+// 14. Do NOT add a semicolon after the closing root </div> tag — the JSX expression must not end with a semicolon
+
+// Output ONLY the raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
 const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the SECOND return() of this existing function (the JSX fallback path — NOT the dangerouslySetInnerHTML path).
 
 Here is the full function you are generating FOR:
@@ -188,7 +327,22 @@ Available variables in scope (all already defined, do not redefine):
 - scale       — number (already inside cardStyle — do NOT use it again)
 - Editable    — component: <Editable fieldId="..." tag="p" style={{...}} />
 
-Rules:
+POSITIONING RULES (CRITICAL — incorrect positioning is the most common failure):
+- cardStyle already sets position: "relative" with fixed pixel dimensions cardW × cardH
+- Use position: "absolute" with explicit top, left (in px) for ALL child elements
+- Derive every coordinate by carefully reading the original HTML/CSS layout
+- NEVER rely on normal document flow — do not stack divs without position: "absolute"
+- NEVER use margin: "auto" alone for centering — it does not work inside a fixed-height relative container
+- To center an element horizontally: set left: 0, width: "100%", textAlign: "center"
+  OR set left: "50%", transform: "translateX(-50%)"
+- To center an element vertically: calculate an explicit top px value from the original layout
+- If the original uses flexbox or grid, convert every item to position: "absolute" with explicit coords
+- Convert percentage-based positions: e.g. top: "30%" → top: cardH * 0.3, left: "50%" → left: cardW * 0.5
+- Full-bleed layers (background image, pattern overlay, color wash): always
+  position: "absolute", top: 0, left: 0, width: "100%", height: "100%"
+- transform: scale() must NEVER appear on any child element — scale is already handled by cardStyle
+
+OUTPUT RULES:
 1. Output ONLY the JSX starting with the root <div> — no imports, no exports, no function wrappers
 2. Root <div> MUST be: <div ref={previewRef} style={cardStyle}>
 3. Do NOT redefine or override width, height, transform, scale, background, or fontFamily on the root div — they are already in cardStyle
@@ -198,7 +352,7 @@ Rules:
 7. For color/font fields — already applied via accent/bg/dark/font variables, use those in styles
 8. For image fields — render conditionally: {data.image_field_id && <img src={data.image_field_id} alt="..." style={{...}} />}
 9. Recreate the full visual design from the HTML/CSS faithfully using inline React styles
-10. Convert CSS var(--x) to the matching JS variable (accent/bg/dark/font); for unmatched vars, inline the resolved hex/value
+10. Convert CSS var(--x) to the matching JS variable (accent/bg/dark/font); for any unmatched vars, inline the resolved hex/value directly
 11. Static decorative elements (borders, ornaments, dividers, SVGs) are fine as plain JSX — they do not need Editable
 12. Do NOT output markdown fences, backticks, or any explanation — raw JSX only
 13. Do NOT add any "click to edit" hint UI
@@ -206,7 +360,6 @@ Rules:
 
 Output ONLY the raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
 
-// ─── Main Component ─────────────────────────────────────────────────────────
 export default function TemplateGenerator() {
   const [htmlInput, setHtmlInput] = useState(
     () => localStorage.getItem("oe_html") || "",
