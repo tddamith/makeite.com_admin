@@ -8,6 +8,7 @@ const TemplateCard = ({
   data,
   onClickEdit,
   onClickCancel,
+  onClickBack,
   onClickDelete,
   isLoading,
 }) => {
@@ -65,14 +66,26 @@ const TemplateCard = ({
               </div>
             </div>
             <div className="flex flex-col gap-2 w-full">
-              <Button
-                content="DELETE"
-                className={"text-white bg-black "}
-                isActive={"text-white bg-black"}
-                isLoading={isLoading}
-                onClick={onClickDelete}
-              />
-
+              <Popconfirm
+                placement="topRight"
+                title="DeleteTemplate"
+                description="Do You want delete this Template?"
+                onConfirm={onClickDelete}
+                onCancel={onClickBack}
+                okText="Yes"
+                cancelText="No"
+                getPopupContainer={() => document.body}
+              >
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    content="DELETE"
+                    className={"text-white bg-black "}
+                    isActive={"text-white bg-black"}
+                    isLoading={isLoading}
+                    onClick={() => {}} // override with empty
+                  />
+                </div>
+              </Popconfirm>
               {/* <Popconfirm
             placement="topLeft"
             title="Delete the image"

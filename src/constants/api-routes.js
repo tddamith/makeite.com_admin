@@ -23,6 +23,7 @@ const ApiRoutes = {
   GET_ALL_TEMPLATES: "/get/all/templates",
   GET_TEMPLATE_BY_PAGE: "/get/template",
   GET_TEMPLATE_STATUS: "/get/all/template/status",
+  DELETE_TEMPLATE_BY_ID: "/delete/template/by",
 
   //ZIP EXTRACT
   ZIP_EXTRACT: "/template/unzip",

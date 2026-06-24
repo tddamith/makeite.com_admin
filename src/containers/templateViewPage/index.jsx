@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import TemplateViewCard from "../../components/templateViewCard";
 import {
+  deleteTemplateById,
   getAllTemplates,
   getAllTemplatesStatus,
   getTemplateByPage,
@@ -392,6 +393,30 @@ const TemplateViewPage = () => {
     }
   };
 
+  const onClickDelete = async (template) => {
+    setIsLoading(true);
+    try {
+      const res = await deleteTemplateById(template?.template_id);
+      console.log("Delete response:", res);
+      notification.success({
+        message: "Success",
+        description: "Template Deleted Successfully!",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+    } catch (err) {
+      notification.error({
+        message: "Error",
+        description: "Failed to delete template. Please try again.",
+        placement: "topRight",
+        duration: 4,
+      });
+      setIsLoading(false);
+      console.error("Delete failed", err);
+    }
+  };
+
   const updateForm = { ...formData };
 
   return (
@@ -541,12 +566,21 @@ const TemplateViewPage = () => {
                       subCategory: template?.sub_category_name,
                     }}
                     isLoading={isLoading}
-                    onClickDelete={""}
+                    onClickDelete={() => {
+                      onClickDelete(template);
+                      console.log("Delete template clicked:", template);
+                    }}
                     onClickEdit={() => {
                       onClickEdit(template);
                     }}
                     onClickCancel={() => {
                       dispatch(openTemplateEditModal(template));
+                    }}
+                    onClickBack={() => {
+                      console.log(
+                        "Back button clicked for template:",
+                        template,
+                      );
                     }}
                   />
                 ),

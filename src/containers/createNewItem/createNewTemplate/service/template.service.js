@@ -30,3 +30,6 @@ export const unzipTemplate = async (templateId) =>
 
 export const jobProgress = async (job_id) =>
   mitAdminApi.get(`${ApiRoutes.JOB_PROGRESS}/${job_id}`);
+
+export const deleteTemplateById = async (templateId) =>
+  mitAdminApi.delete(`${ApiRoutes.DELETE_TEMPLATE_BY_ID}/${templateId}`);
