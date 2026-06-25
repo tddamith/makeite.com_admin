@@ -44,169 +44,46 @@ async function callClaude(systemPrompt, userPrompt) {
   return data.content?.map((b) => b.text || "").join("") || "";
 }
 
-// ─── Prompts ────────────────────────────────────────────────────────────────
-const MANIFEST_SYSTEM = `You are a template analyzer. Given HTML code for an invitation/card template, extract all editable fields and output ONLY a valid JSON object (no markdown, no backticks, no explanation).
+// ─── Updated Prompts ─────────────────────────────────────────────────────────
+const MANIFEST_SYSTEM = `You are a template analyzer. Given HTML code and CSS for an invitation/card template, extract all editable fields AND their pixel positions, then output ONLY a valid JSON object (no markdown, no backticks, no explanation).
 
 The JSON must follow this exact shape:
 {
   "id": "template-v1",
   "name": "Template Name",
   "version": "1.0.0",
-  "size": { "width": 600, "height": 840 },
+  "size": { "width": 450, "height": 600 },
   "fields": [
     { "id": "field_id", "label": "Field Label", "type": "text|color|font|image", "group": "GroupName", "default": "default value", "styles": ["color","fontSize","fontFamily"] }
   ],
-  "fonts": ["Font1", "Font2"]
+  "fonts": ["Font1", "Font2"],
+  "defaultPositions": {
+    "field_id": { "x": 0, "y": 0, "w": 280, "h": 44 }
+  }
 }
 
-Rules:
+Rules for fields:
 - Identify all text content that users would want to customize (names, dates, venues, taglines, etc.)
-- Identify color variables/values as "color" type fields  
+- Identify color variables/values as "color" type fields
 - Identify font families as "font" type fields
 - Identify image URLs as "image" type fields
 - Group related fields logically (Names, Event, Venue, Details, Style, Media)
 - The "id" should be snake_case, derived from the template name/content
 - "styles" array for text fields: include from ["color","fontSize","fontFamily"] as appropriate
+
+Rules for defaultPositions (CRITICAL — this makes the editor usable):
+- For each field id in "fields", add an entry in "defaultPositions"
+- x and y are the pixel offset from the top-left corner of the card (size.width × size.height)
+- Read the CSS carefully: the card uses position: relative with fixed pixel dimensions
+- For elements inside a .content div with padding: compute y = padding-top + sum of heights of all elements above this one + their margins
+- For text-align: center elements, set x = 0 and w = card width so the element spans the full width
+- Height (h): use the element's line-height × number of lines, or font-size × 1.4 as a minimum
+- For the date-row (flex row): calculate each child's x position based on gap and widths
+  - date-side left: x = (cardW/2) - gap/2 - date-side-width, y = same row y, w = 120, h = 30
+  - date-number: x = (cardW/2) - min-width/2, same y, w = 50, h = 60
+  - date-side right: x = (cardW/2) + gap/2, same y, w = 120, h = 30
+- If a field uses multiline content (venue with <br>), increase h accordingly (lines × lineHeight)
 - Output ONLY the JSON, nothing else`;
-
-// const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the SECOND return() of this existing function (the JSX fallback path — NOT the dangerouslySetInnerHTML path).
-
-// Here is the full function you are generating FOR:
-
-// \`\`\`jsx
-// function InvitationTemplate({
-//   scale = 1,
-//   previewRef,
-//   elements,
-//   css,
-//   manifest,
-//   assetBaseUrl,
-// }) {
-//   const { data, editorMode, updateField } = useTemplate();
-//   const containerRef = useRef();
-
-//   const accent = data.accent_color || "#8b6843";
-//   const bg     = data.bg_color     || "#faf6ef";
-//   const dark   = data.text_dark    || "#2a1f14";
-//   const font   = data.font_family  || "Cormorant Garamond";
-
-//   const cardW = manifest?.size?.width  || 600;
-//   const cardH = manifest?.size?.height || 840;
-
-//   const Editable = ({ fieldId, tag: Tag = "span", style, className }) => {
-//     const isEdit = editorMode;
-//     return (
-//       <Tag
-//         contentEditable={isEdit}
-//         suppressContentEditableWarning
-//         data-field={fieldId}
-//         style={{
-//           ...style,
-//           outline: "none",
-//           cursor: isEdit ? "text" : "default",
-//           transition: "box-shadow 0.15s",
-//           borderRadius: 2,
-//         }}
-//         className={className}
-//         onFocus={(e) => {
-//           if (isEdit) e.target.style.boxShadow = \`0 0 0 1.5px \${accent}55\`;
-//         }}
-//         onBlur={(e) => {
-//           if (isEdit) {
-//             e.target.style.boxShadow = "none";
-//             updateField(fieldId, e.target.innerText);
-//           }
-//         }}
-//         onKeyDown={(e) => {
-//           if (e.key === "Enter") {
-//             e.preventDefault();
-//             e.target.blur();
-//           }
-//         }}
-//       >
-//         {data[fieldId]}
-//       </Tag>
-//     );
-//   };
-
-//   const resolvedHtml = elements ? resolvePlaceholders(elements, data) : null;
-//   const resolvedCss  = css
-//     ? resolveAssetPaths(resolvePlaceholders(css, data), assetBaseUrl || window.location.origin + "/")
-//     : null;
-
-//   useEffect(() => { /* syncs data-field DOM nodes */ }, []);
-
-//   const cardStyle = {
-//     width: cardW,
-//     height: cardH,
-//     transform: \`scale(\${scale})\`,
-//     transformOrigin: "top left",
-//     position: "relative",
-//     overflow: "hidden",
-//     boxShadow: "0 40px 100px rgba(0,0,0,0.22)",
-//     flexShrink: 0,
-//     background: bg,
-//     zIndex: 0,
-//     fontFamily: \`'\${font}', serif\`,
-//   };
-
-//   // PATH 1 — HTML string from zip. Already complete. Do NOT generate for this.
-//   if (resolvedHtml) {
-//     return (
-//       <div ref={previewRef} style={cardStyle}>
-//         {resolvedCss && <style>{resolvedCss}</style>}
-//         <div
-//           ref={containerRef}
-//           dangerouslySetInnerHTML={{ __html: resolvedHtml }}
-//           style={{ width: "100%", height: "100%" }}
-//         />
-//       </div>
-//     );
-//   }
-
-//   // PATH 2 — JSX fallback. THIS is what you generate.
-//   return (
-//     // ← YOUR GENERATED JSX GOES HERE
-//   );
-// }
-// \`\`\`
-
-// IMPORTANT: You are generating ONLY the content for PATH 2 — the JSX fallback return().
-// PATH 1 (dangerouslySetInnerHTML) is already complete. Do not generate anything for it.
-
-// Available variables in scope (all already defined, do not redefine):
-// - data        — object with all field values keyed by manifest field ids
-// - accent      — string, from data.accent_color
-// - bg          — string, from data.bg_color
-// - dark        — string, from data.text_dark
-// - font        — string, from data.font_family
-// - cardW       — number, card width in px
-// - cardH       — number, card height in px
-// - cardStyle   — object with width, height, scale transform, bg, fontFamily already set
-// - editorMode  — boolean
-// - previewRef  — ref, must be on the root div
-// - scale       — number (already inside cardStyle — do NOT use it again)
-// - Editable    — component: <Editable fieldId="..." tag="p" style={{...}} />
-
-// Rules:
-// 1. Output ONLY the JSX starting with the root <div> — no imports, no exports, no function wrappers
-// 2. Root <div> MUST be: <div ref={previewRef} style={cardStyle}>
-// 3. Do NOT redefine or override width, height, transform, scale, background, or fontFamily on the root div — they are already in cardStyle
-// 4. Do NOT add transform or scale anywhere in the output
-// 5. Use inline styles only — no Tailwind, no CSS class names
-// 6. Use <Editable fieldId="field_id" tag="tagname" style={{...}} /> for EVERY text field in the manifest — never hardcode the text value
-// 7. For color/font fields — already applied via accent/bg/dark/font variables, use those in styles
-// 8. For image fields — render conditionally: {data.image_field_id && <img src={data.image_field_id} alt="..." style={{...}} />}
-// 9. Recreate the full visual design from the HTML/CSS faithfully using inline React styles
-// 10. Convert CSS var(--x) to the matching JS variable (accent/bg/dark/font); for unmatched vars, inline the resolved hex/value
-// 11. Static decorative elements (borders, ornaments, dividers, SVGs) are fine as plain JSX — they do not need Editable
-// 12. Do NOT output markdown fences, backticks, or any explanation — raw JSX only
-// 13. Do NOT add any "click to edit" hint UI
-// 14. Do NOT add a semicolon after the closing root </div> tag — the JSX expression must not end with a semicolon
-
-// Output ONLY the raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
-
-// ─── Main Component ─────────────────────────────────────────────────────────
 
 const COMPONENT_SYSTEM = `You are a React JSX elements generator. Given an HTML/CSS template and its manifest JSON, generate ONLY the JSX elements that go inside the SECOND return() of this existing function (the JSX fallback path — NOT the dangerouslySetInnerHTML path).
 
@@ -327,7 +204,120 @@ Available variables in scope (all already defined, do not redefine):
 - scale       — number (already inside cardStyle — do NOT use it again)
 - Editable    — component: <Editable fieldId="..." tag="p" style={{...}} />
 
-POSITIONING RULES (CRITICAL — incorrect positioning is the most common failure):
+══════════════════════════════════════════════════════════
+CSS → INLINE STYLE RESOLUTION (MOST CRITICAL STEP)
+══════════════════════════════════════════════════════════
+
+When CSS is provided, you MUST follow this exact process for every HTML element:
+
+STEP 1 — IDENTIFY CLASSES
+  For each HTML element, collect ALL class names. Example:
+    <p class="venue editable" data-editable="venue">
+  → classes: ["venue", "editable"]
+
+STEP 2 — LOOK UP EACH CLASS IN THE CSS
+  For each class name, find its rule block in the provided CSS and collect
+  every property declared inside it. Example:
+    .venue { font-size: 16px; letter-spacing: 3px; line-height: 1.2; margin-bottom: 5px; }
+  → properties: { font-size: "16px", letter-spacing: "3px", line-height: 1.2, margin-bottom: "5px" }
+
+STEP 3 — MERGE ALL CLASSES (later class overrides earlier, like the cascade)
+  If the element has multiple classes, merge their properties in order.
+  Ignore utility/state classes like "editable", "selected" — those are editor-only.
+
+STEP 4 — ALSO INHERIT FROM TAG-LEVEL RULES
+  If the CSS has rules for plain tags (h1, h2, p, div, img), merge those in
+  BEFORE class rules (classes override tag rules).
+
+STEP 5 — CONVERT EVERY CSS PROPERTY TO camelCase React inline style
+  CSS property  →  React style key
+  font-family   →  fontFamily
+  font-size     →  fontSize
+  font-weight   →  fontWeight
+  font-style    →  fontStyle
+  letter-spacing→  letterSpacing
+  line-height   →  lineHeight
+  text-align    →  textAlign
+  margin-bottom →  marginBottom
+  margin-top    →  marginTop
+  padding-top   →  paddingTop
+  border-top    →  borderTop
+  border-bottom →  borderBottom
+  object-fit    →  objectFit
+  z-index       →  zIndex
+  min-width     →  minWidth
+  ... and so on for ALL hyphenated properties
+
+STEP 6 — APPLY THE RESOLVED STYLE OBJECT TO THE JSX ELEMENT
+  Pass the fully resolved style as the style prop.
+  For <Editable> elements: pass it as the style prop.
+  For plain JSX elements (div, img, svg): pass it as inline style.
+
+STEP 7 — HANDLE SPECIAL CSS VALUES
+  - font-family strings: preserve the full value including fallbacks.
+    Example: font-family: "Great Vibes", cursive → fontFamily: '"Great Vibes", cursive'
+    Example: font-family: "Playfair Display", serif → fontFamily: '"Playfair Display", serif'
+  - If a font-family matches the manifest's primary font field, use the \`font\` variable instead.
+  - color: #222 or color: #fff → use as-is unless it matches accent/bg/dark variables.
+  - CSS var(--x): replace with the matching JS variable (accent/bg/dark/font).
+    For any unmatched CSS var(), inline the resolved hex/value directly.
+  - Shorthand border: "2px solid #222" → borderTop: "2px solid #222", borderBottom: "2px solid #222" etc.
+
+EXAMPLE — how to resolve an element:
+
+HTML:  <div class="date-side editable" data-editable="day">SATURDAY</div>
+
+CSS:
+  .date-side {
+    width: 120px;
+    border-top: 2px solid #222;
+    border-bottom: 2px solid #222;
+    padding: 4px 0;
+    font-family: "Playfair Display", serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+Resolved style object:
+  {
+    width: 120,
+    borderTop: "2px solid #222",
+    borderBottom: "2px solid #222",
+    paddingTop: 4,
+    paddingBottom: 4,
+    fontFamily: '"Playfair Display", serif',
+    fontSize: 14,
+    letterSpacing: 1,
+  }
+
+Generated JSX:
+  <Editable
+    fieldId="day"
+    tag="div"
+    style={{
+      width: 120,
+      borderTop: "2px solid #222",
+      borderBottom: "2px solid #222",
+      paddingTop: 4,
+      paddingBottom: 4,
+      fontFamily: '"Playfair Display", serif',
+      fontSize: 14,
+      letterSpacing: 1,
+      position: "absolute",
+      top: /* calculated from layout */,
+      left: 0,
+      textAlign: "center",
+    }}
+  />
+
+DO NOT SKIP OR APPROXIMATE CSS PROPERTIES.
+Every font-size, letter-spacing, font-family, line-height, border, padding,
+margin, font-weight, font-style declared in the CSS MUST appear in the inline style.
+A missing CSS property is a visual bug.
+
+══════════════════════════════════════════════════════════
+POSITIONING RULES (CRITICAL — incorrect positioning is the most common failure)
+══════════════════════════════════════════════════════════
 - cardStyle already sets position: "relative" with fixed pixel dimensions cardW × cardH
 - Use position: "absolute" with explicit top, left (in px) for ALL child elements
 - Derive every coordinate by carefully reading the original HTML/CSS layout
@@ -341,8 +331,18 @@ POSITIONING RULES (CRITICAL — incorrect positioning is the most common failure
 - Full-bleed layers (background image, pattern overlay, color wash): always
   position: "absolute", top: 0, left: 0, width: "100%", height: "100%"
 - transform: scale() must NEVER appear on any child element — scale is already handled by cardStyle
+- The .content wrapper in the original uses padding for spacing: replicate that
+  by computing top positions as: contentPaddingTop + sum of preceding element heights + margins
 
-OUTPUT RULES:
+FOR THE DATE ROW SPECIFICALLY (and any flex row):
+  The original uses display:flex with gap. Convert to absolute positions:
+  - Place the date-number at the horizontal center: left: cardW/2, transform: "translateX(-50%)"
+  - Place date-side (left label) at: right: cardW/2 + dateNumberWidth/2 + gap
+  - Place date-side (right label) at: left: cardW/2 + dateNumberWidth/2 + gap
+
+══════════════════════════════════════════════════════════
+OUTPUT RULES
+══════════════════════════════════════════════════════════
 1. Output ONLY the JSX starting with the root <div> — no imports, no exports, no function wrappers
 2. Root <div> MUST be: <div ref={previewRef} style={cardStyle}>
 3. Do NOT redefine or override width, height, transform, scale, background, or fontFamily on the root div — they are already in cardStyle
@@ -357,6 +357,12 @@ OUTPUT RULES:
 12. Do NOT output markdown fences, backticks, or any explanation — raw JSX only
 13. Do NOT add any "click to edit" hint UI
 14. Do NOT add a semicolon after the closing root </div> tag — the JSX expression must not end with a semicolon
+
+POSITIONING NOTE:
+- Do NOT use position: "absolute" on Editable components — Editable uses react-rnd which handles its own absolute positioning via the positions from TemplateContext
+- DO use position: "absolute" for all decorative/static elements (dividers, ornaments, bg images, SVGs)
+- The Editable fields will be placed at the correct coordinates automatically from manifest.defaultPositions
+- You still need to pass style={{}} to Editable with font/color/size properties — just not top/left/position
 
 Output ONLY the raw JSX starting with: <div ref={previewRef} style={cardStyle}>`;
 
@@ -419,6 +425,53 @@ export default function TemplateGenerator() {
     step === "generating-manifest" || step === "generating-component";
 
   // ── Generate ──────────────────────────────────────────────────────────────
+  // const generate = async () => {
+  //   if (!htmlInput.trim()) return;
+  //   setError("");
+  //   setManifest(null);
+  //   setComponentCode("");
+
+  //   try {
+  //     // Step 1: Generate manifest
+  //     setStep("generating-manifest");
+  //     const templateInput = `Here is the HTML template:\n\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}`;
+  //     const manifestRaw = await callClaude(MANIFEST_SYSTEM, templateInput);
+
+  //     let manifestObj;
+  //     try {
+  //       const cleaned = manifestRaw
+  //         .replace(/```json\n?/g, "")
+  //         .replace(/```\n?/g, "")
+  //         .trim();
+  //       manifestObj = JSON.parse(cleaned);
+  //     } catch {
+  //       throw new Error(
+  //         "Failed to parse manifest JSON. Raw output:\n" +
+  //           manifestRaw.slice(0, 300),
+  //       );
+  //     }
+  //     setManifest(manifestObj);
+
+  //     // Step 2: Generate component
+  //     setStep("generating-component");
+  //     const compRaw = await callClaude(
+  //       COMPONENT_SYSTEM,
+  //       `HTML Template:\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}\n\nManifest JSON:\n${JSON.stringify(manifestObj, null, 2)}`,
+  //     );
+  //     const compCleaned = compRaw
+  //       .replace(/^```[a-z]*\n?/m, "")
+  //       .replace(/```\s*$/m, "")
+  //       .trim();
+  //     setComponentCode(compCleaned);
+
+  //     setStep("done");
+  //     setActiveTab("manifest");
+  //   } catch (e) {
+  //     setError(e.message || "Unknown error");
+  //     setStep("error");
+  //   }
+  // };
+
   const generate = async () => {
     if (!htmlInput.trim()) return;
     setError("");
@@ -426,9 +479,8 @@ export default function TemplateGenerator() {
     setComponentCode("");
 
     try {
-      // Step 1: Generate manifest
       setStep("generating-manifest");
-      const templateInput = `Here is the HTML template:\n\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}`;
+      const templateInput = `Here is the HTML template:\n\n${htmlInput}${cssInput.trim() ? `\n\nCSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}`;
       const manifestRaw = await callClaude(MANIFEST_SYSTEM, templateInput);
 
       let manifestObj;
@@ -440,17 +492,20 @@ export default function TemplateGenerator() {
         manifestObj = JSON.parse(cleaned);
       } catch {
         throw new Error(
-          "Failed to parse manifest JSON. Raw output:\n" +
-            manifestRaw.slice(0, 300),
+          "Failed to parse manifest JSON.\n" + manifestRaw.slice(0, 300),
         );
       }
       setManifest(manifestObj);
 
-      // Step 2: Generate component
+      // ✅ NEW: immediately seed positions into context so editor is correct on first render
+      // if (manifestObj.defaultPositions) {
+      //   seedPositions(manifestObj.defaultPositions); // call your TemplateContext setter here
+      // }
+
       setStep("generating-component");
       const compRaw = await callClaude(
         COMPONENT_SYSTEM,
-        `HTML Template:\n${htmlInput}${cssInput.trim() ? `\n\nAdditional CSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}\n\nManifest JSON:\n${JSON.stringify(manifestObj, null, 2)}`,
+        `HTML Template:\n${htmlInput}${cssInput.trim() ? `\n\nCSS:\n\`\`\`css\n${cssInput}\n\`\`\`` : ""}\n\nManifest JSON:\n${JSON.stringify(manifestObj, null, 2)}`,
       );
       const compCleaned = compRaw
         .replace(/^```[a-z]*\n?/m, "")
