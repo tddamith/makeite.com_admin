@@ -44,7 +44,7 @@ async function callClaude(systemPrompt, userPrompt) {
   return data.content?.map((b) => b.text || "").join("") || "";
 }
 
-// ─── Updated Prompts ─────────────────────────────────────────────────────────
+// ─── Updated Prompts ─
 const MANIFEST_SYSTEM = `You are a template analyzer. Given HTML code and CSS for an invitation/card template, extract all editable fields AND their pixel positions, then output ONLY a valid JSON object (no markdown, no backticks, no explanation).
 
 The JSON must follow this exact shape:
@@ -521,7 +521,7 @@ export default function TemplateGenerator() {
     }
   };
 
-  // ── Load HTML file ────────────────────────────────────────────────────────
+  // ── Load HTML file ──
   const loadFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -537,14 +537,14 @@ export default function TemplateGenerator() {
     e.target.value = "";
   };
 
-  // ── Copy ──────────────────────────────────────────────────────────────────
+  // ── Copy ──
   const copy = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(""), 1800);
   };
 
-  // ── Download ZIP ──────────────────────────────────────────────────────────
+  // ── Download ZIP ──
   const downloadZip = async () => {
     if (!manifest || !componentCode) return;
     try {
@@ -570,7 +570,7 @@ export default function TemplateGenerator() {
     }
   };
 
-  // ─── Styles ──────────────────────────────────────────────────────────────
+  // ─── Styles ──
   const S = {
     root: {
       minHeight: "100vh",
